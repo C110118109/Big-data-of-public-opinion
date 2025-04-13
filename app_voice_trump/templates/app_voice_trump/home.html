@@ -1,0 +1,329 @@
+{% extends 'base.html' %} 
+{% block title %}川普聲量觀察{% endblock %} 
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-12">
+    <div class="content-card mb-4">
+      <h1 class="mb-3">川普聲量觀察</h1>
+      <p class="lead">針對一個你關心的人、事、物做深入的分析</p>
+    </div>
+  </div>
+
+  <!-- 顯示區塊-->
+  <div class="col-lg-6 mb-4">
+    <div class="content-card">
+      <div class="card-header bg-white text-black">
+        <h3 class="h5 text-uppercase mb-0">
+          <i class="fas fa-bullhorn me-2"></i>網路聲量分析
+        </h3>
+        <small class="d-block mt-1">(資料週期:資料截止時間的前4周)</small>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <!-- Leaderboard Container -->
+          <div class="container-fluid">
+            <!-- Leaderboard Heading -->
+            <h4 class="mb-3 text-primary"></h4>
+            <p class="mb-3">
+              網路聲量是什麼？
+              新聞報導有多少篇新聞提及這組關鍵字，聲量越高表示能見度越高。
+            </p>
+            <p class="mb-4">總篇數:有多少篇新聞提到; 總次數:在相關新聞中被提到多少次</p>
+
+            <hr class="mb-4" />
+            <!-- Leaderboard Content -->
+            <div id="share_of_voice"></div>
+          </div>
+          <!-- /.container -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 區塊結束-->
+
+  <!-- 繪圖區塊-->
+  <div class="col-lg-6 mb-4">
+    <div class="content-card">
+      <div class="card-header bg-white text-black">
+        <h3 class="h5 text-uppercase mb-0">
+          <i class="fas fa-chart-pie me-2"></i>聲量分布情況
+        </h3>
+      </div>
+      <div class="card-body">
+        <!-- description -->
+        <h3 class="mb-3 text-primary"></h3>
+        <p class="mb-4">在哪一類別的新聞中被報導最多篇?</p>
+        <hr class="mb-4" />
+        <!-- Set a fixed height div to contain the chart -->
+        <div style="height: 240px; position: relative;">
+          <canvas id="bar_chart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 區塊結束-->
+
+  <!-- 顯示區塊-->
+  <div class="col-lg-6 mb-4">
+    <div class="content-card">
+      <div class="card-header bg-white text-black">
+        <h3 class="h5 text-uppercase mb-0">
+          <i class="fas fa-chart-line me-2"></i>聲量變化
+        </h3>
+      </div>
+      <div class="card-body">
+        <!-- description -->
+        <h3 class="mb-3 text-primary"></h3>
+        <p class="mb-4">在哪個時間點被新聞報導最多?</p>
+        <hr class="mb-4" />
+        <canvas id="line_chart" style="min-height: 300px;"></canvas>
+      </div>
+    </div>
+  </div>
+  <!-- 區塊結束-->
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- jQuery指令用到的js-->
+<!-- 繪製line chart會用到，必須在chartjs之前先載入 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
+<!-- chartjs圖js-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+<!-- 程式碼區 -->
+<script>
+  // How does JavaScript read data from Django server
+  // (1)使用Ajax與後端要資料
+  // (2)讀取Django後端送過來的資料 變數名稱寫在兩個大括弧中間即可
+  // 加上 safe 是不讓Django做一些特殊符號的代號轉換(XSS安全機制)，否則我們拿到的資料顯示會有錯誤
+
+  const freqByDate = {{ freqByDate| safe }}; // for line chart
+  const freqByCate = {{freqByCate|safe}}; // for line chart
+  const news_category = {{category|safe}}; // for bar chart
+  const num_occurrence = {{num_occurrence|safe}};
+  const num_frequency = {{num_frequency|safe}};
+  const photo ="https://pgw.worldjournal.com/gw/photo.php?u=https://uc.udn.com.tw/photo/wj/realtime/2025/04/04/31782844.jpg&x=0&y=0&sw=0&sh=0&sl=W&fw=800&exp=3600&q=75";
+
+  //display data and show chart
+  displayShareOfVoice();
+  drawBarChart();
+  showLineChart();
+
+  // *****************
+  // Function for displaying the share of voice
+  function displayShareOfVoice() {
+    // define a html block 一個區塊
+    let html_snippet = `
+          <div class="row stats-card p-3">
+              <div class="col-md-4">
+                  <a href="#">
+                      <img class="img-fluid rounded shadow-sm mb-3 mb-md-0" src=${photo} alt="川普照片">
+                  </a>
+              </div>
+              <div class="col-md-8">
+                  <div class="card-body">
+                      <div class="d-flex align-items-center mb-3">
+                          <i class="fas fa-newspaper fa-2x text-primary me-3"></i>
+                          <h2 class="mb-0">總篇數: <span class="text-primary">${num_occurrence}</span> 篇</h2>
+                      </div>
+                      <div class="d-flex align-items-center">
+                          <i class="fas fa-hashtag fa-2x text-primary me-3"></i>
+                          <h2 class="mb-0">總次數: <span class="text-primary">${num_frequency}</span> 次</h2>
+                      </div>
+                  </div>
+              </div>
+          </div>`;
+
+    const new_div = document.createElement("div");
+    new_div.innerHTML += html_snippet;
+    document.getElementById("share_of_voice").appendChild(new_div);
+  }
+
+  // *****************
+  // Chart.defaults.global.defaultFontSize = 15;
+  // 繪製長條圖的函數
+  function drawBarChart() {
+    const freq_values = freqByCate;
+    const news_categories = news_category;
+
+    // Define a color array
+    const backgroundColors = [
+      'rgba(52, 152, 219, 0.6)',
+      'rgba(46, 204, 113, 0.6)',
+      'rgba(155, 89, 182, 0.6)',
+      'rgba(231, 76, 60, 0.6)',
+      'rgba(241, 196, 15, 0.6)',
+      'rgba(26, 188, 156, 0.6)',
+      'rgba(230, 126, 34, 0.6)',
+      'rgba(149, 165, 166, 0.6)',
+      'rgba(243, 156, 18, 0.6)',
+      'rgba(52, 73, 94, 0.6)'
+    ];
+
+    // Data for chart
+    let data = {
+      labels: news_categories,
+      datasets: [
+        {
+          label: "川普聲量",
+          data: freq_values,
+          backgroundColor: backgroundColors.slice(0, freq_values.length),
+          borderColor: backgroundColors.slice(0, freq_values.length),
+          borderWidth: 1,
+        },
+      ],
+    };
+    
+    // Options for chart
+    let options = {
+      responsive: true,
+      maintainAspectRatio: false, // This is important for fixed height
+      scales: {
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true,
+              // Add a suggestedMax to prevent extreme stretching
+              // This will add some padding at the top
+              suggestedMax: Math.max(...freq_values) * 1.1,
+              // You can also set a fixed max if you know the range
+              // max: 100,
+            },
+            gridLines: {
+              color: 'rgba(0, 0, 0, 0.05)'
+            }
+          },
+        ],
+        xAxes: [
+          {
+            gridLines: {
+              color: 'rgba(0, 0, 0, 0.05)'
+            }
+          }
+        ]
+      },
+      legend: {
+        display: true,
+        position: 'top'
+      },
+      tooltips: {
+        mode: 'index',
+        intersect: false
+      }
+    };
+
+    // Get chart element
+    const barChartElem = document.getElementById("bar_chart");
+    
+    // Create new bar chart
+    new Chart(barChartElem, {
+      type: "bar",
+      data: data,
+      options: options,
+    });
+  }
+  // *****************
+  // Line chart
+  function showLineChart() {
+    const lineChartElem = document
+      .getElementById("line_chart")
+      .getContext("2d");
+
+      const freq_values = freqByDate;
+
+    const myoptions = {
+      type: "line",
+      data: {
+        datasets: [
+          {
+            label: "聲量變化",
+            borderColor: '#3498db',
+            backgroundColor: 'rgba(52, 152, 219, 0.2)',
+            borderWidth: 2,
+            pointBackgroundColor: '#3498db',
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            data: freq_values,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: {
+          display: true,
+          position: 'top'
+        },
+        scales: {
+          xAxes: [
+            {
+              type: "time",
+              time: {
+                unit: "day",
+                displayFormats: {
+                  //day: 'DD-MM-YYYY'
+                  day: "MM/DD",
+                },
+              },
+              gridLines: {
+                color: 'rgba(0, 0, 0, 0.05)'
+              }
+            },
+          ],
+          yAxes: [
+            {
+              ticks: {
+                beginAtZero: true, //從0開始
+              },
+              display: true,
+              scaleLabel: {
+                display: true,
+                labelString: "出現次數",
+              },
+              gridLines: {
+                color: 'rgba(0, 0, 0, 0.05)'
+              }
+            },
+          ],
+        },
+        tooltips: {
+          mode: 'index',
+          intersect: false
+        },
+        hover: {
+          mode: 'nearest',
+          intersect: true
+        }
+      },
+    };
+
+    // 檢查line_chart變數是否存在，如果存在，表示已經有之前畫的圖，必須要先清除之後，再畫新的圖。否則會有新舊圖重疊現象
+    if (window.time_line_chart) {
+      time_line_chart.destroy();
+    }
+
+    // 畫一張新圖(產生一個圖物件變數名稱為line_chart)
+    // 必須全域變數--注意:前面不要有let, var, const等修飾詞
+    // 理由: 我們要讓它存在於網頁全域變數，
+    // 這樣我們才方便判斷是否有前一次的圖，如果存在有，要刪除之，否則，很多張圖會疊在一起
+    time_line_chart = new Chart(lineChartElem, myoptions);
+  }
+
+  // randomize color
+  function randomColors(length) {
+    var pool = [];
+    for (let i = 0; i < length; i++) {
+      pool.push(dynamicColors());
+    }
+    return pool;
+  }
+
+  function dynamicColors() {
+    var r = Math.floor(Math.random() * 255);
+    var g = Math.floor(Math.random() * 255);
+    var b = Math.floor(Math.random() * 255);
+    return "rgba(" + r + "," + g + "," + b + ", 0.3)";
+  }
+</script>
+{% endblock %}

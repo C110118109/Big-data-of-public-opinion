@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="zh-TW">
+  <head>
+    <title>
+      {% block title %}
+        輿情分析平台
+      {% endblock %}
+    </title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/main.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/app_styles.css' %}" />
+    {% block extra_css %}
+    {% endblock %}
+  </head>
+  <body>
+    <div class="container-fluid px-0">
+      <!-- Navigation Bar -->
+      <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+          <a class="navbar-brand" href="{% url 'app_top_keyword:home' %}">輿情大數據</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+              <!-- 基礎熱門分析 -->
+              <div class="btn-group">
+                <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="fas fa-fire me-1"></i> 熱門分析
+                </button>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="{% url 'app_top_keyword:home' %}">
+                    <i class="fas fa-hashtag me-2"></i>熱門關鍵詞分析
+                  </a>
+                  <a class="dropdown-item" href="{% url 'app_top_person:home' %}">
+                    <i class="fas fa-users me-2"></i>熱門人物排行分析
+                  </a>
+                  <!-- <a class="dropdown-item" href="#">
+                    <i class="fas fa-tags me-2"></i>命名實體熱門分析
+                  </a>
+                  <a class="dropdown-item" href="#" style="color: green">
+                    <i class="fas fa-crown me-2"></i>昨日誰最大
+                  </a> -->
+                </div>
+              </div>
+
+              <!-- 進階自訂分析 -->
+              <div class="btn-group">
+                <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="fas fa-chart-line me-1"></i> 進階查詢
+                </button>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="{% url 'app_user_keyword:home' %}">
+                    <i class="fas fa-search me-2"></i>自訂關鍵詞熱門度分析
+                  </a>
+                  <a class="dropdown-item" href="{% url 'app_user_keyword_association:home' %}">
+                    <i class="fas fa-network-wired me-2"></i>全文檢索與關聯新聞分析
+                  </a>
+                  <!-- <a class="dropdown-item" href="#">
+                    <i class="fas fa-smile me-2"></i>自訂關鍵詞之情緒分析
+                  </a> -->
+                </div>
+              </div>
+
+              <!-- 特色分析 -->
+              <div class="btn-group">
+                <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="fas fa-star me-1"></i> 特色分析
+                </button>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="{% url 'app_voice_trump:home' %}" >
+                    <i class="fas fa-bullhorn me-2"></i>川普聲量我最大
+                  </a>
+                  <!-- <div class="dropdown-divider"></div>
+                  <a class="nav-link" href="#" style="color: green">
+                    <i class="fas fa-vote-yea me-2"></i>台北市長選舉聲量觀測站
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="nav-link" href="#">
+                    <i class="fas fa-balance-scale me-2"></i>政黨聲量排行榜
+                  </a>
+                  <a class="nav-link" href="#">
+                    <i class="fas fa-user-tie me-2"></i>政治人物聲量排行榜
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="nav-link" href="#" style="color: green">
+                    <i class="fas fa-newspaper me-2"></i>事件人物聲量相關分析
+                  </a> -->
+                </div>
+              </div>
+
+              <!-- 新聞推薦系統 -->
+              <!-- <div class="btn-group">
+                <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="fas fa-thumbs-up me-1"></i> 新聞推薦系統
+                </button>
+                <div class="dropdown-menu"> -->
+                  <!-- <a class="dropdown-item" href="#">
+                    <i class="fas fa-robot me-2"></i>Bert/Qwen新聞推薦-新聞查找相似新聞
+                  </a> -->
+                <!-- </div>
+              </div> -->
+
+              <!-- NLP應用 -->
+              <!-- <div class="btn-group">
+                <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="fas fa-brain me-1"></i> 自然語言理解
+                </button>
+                <div class="dropdown-menu">
+                  <!-- <a class="dropdown-item" href="#">
+                    <i class="fas fa-comment-dots me-2"></i>語言模型Bert/Qwen情緒分類
+                  </a>
+                  <a class="dropdown-item" href="#">
+                    <i class="fas fa-newspaper me-2"></i>語言模型Bert/Qwen新聞分類
+                  </a> -->
+                <!-- </div>
+              </div>  -->
+
+              <!-- 更多選項 -->
+              <!-- <div class="btn-group">
+                <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="fas fa-ellipsis-h me-1"></i> 更多
+                </button>
+                <div class="dropdown-menu dropdown-menu-end">
+                  <!-- 使用資料庫 -->
+                  <!-- <h6 class="dropdown-header">使用DB</h6> -->
+                  <!-- <a class="dropdown-item" href="#">
+                    <i class="fas fa-database me-2"></i>熱門人物資料庫查詢
+                  </a>
+                  <a class="dropdown-item" href="#">
+                    <i class="fas fa-search me-2"></i>昨日新聞資料庫全文檢索
+                  </a> -->
+                  
+                  <!-- <div class="dropdown-divider"></div> -->
+                  
+                  <!-- 特色應用 -->
+                  <!-- <h6 class="dropdown-header">特色應用</h6> -->
+                  <!-- <a class="dropdown-item" href="#">
+                    <i class="fas fa-chart-bar me-2"></i>高雄市市長選舉人氣分析
+                  </a>
+                  <a class="dropdown-item" href="#">
+                    <i class="fas fa-chart-pie me-2"></i>疫情發燒監視
+                  </a>
+                  <a class="dropdown-item" href="#">
+                    <i class="fas fa-utensils me-2"></i>人氣美食排行榜
+                  </a> -->
+                  
+                  <!-- <div class="dropdown-divider"></div> -->
+                  
+                  <!-- 關於 -->
+                  <!-- <h6 class="dropdown-header">關於</h6> -->
+                  <!-- <a class="dropdown-item" href="#">
+                    <i class="fas fa-info-circle me-2"></i>課程介紹網頁
+                  </a>
+                  <a class="dropdown-item" href="#">
+                    <i class="fas fa-code me-2"></i>如何使用輿情API
+                  </a> -->
+                  
+                  <!-- <div class="dropdown-divider"></div> -->
+                  
+                  <!-- 會員訂閱 -->
+                  <!-- <a class="dropdown-item" href="#">
+                    <i class="fas fa-crown me-2"></i>付費訂閱服務
+                  </a> -->
+                <!-- </div>
+              </div> --> 
+            </ul>
+          </div>
+        </div>
+      </nav>
+      <!-- End of Navigation Bar -->
+
+      <!-- Main Content -->
+      <div class="container mt-4">
+        {% block content %}
+        <!-- Default content when no specific page is loaded -->
+        <div class="row">
+          <div class="col-12">
+            <div class="content-card text-center py-5">
+              <h1 class="display-4 mb-4">輿情大數據分析平台</h1>
+              <p class="lead">探索網路聲量，發掘輿論趨勢，做出明智決策</p>
+              <hr class="my-4">
+              <p>透過我們的平台，您可以分析關鍵字熱度、人物聲量、情緒傾向，掌握輿論脈動。</p>
+              <div class="d-flex justify-content-center mt-4">
+                <a class="btn btn-primary btn-lg me-3" href="{% url 'app_top_keyword:home' %}" role="button">
+                  <i class="fas fa-chart-line me-2"></i>開始分析
+                </a>
+                <!-- <a class="btn btn-outline-secondary btn-lg" href="#" role="button">
+                  <i class="fas fa-info-circle me-2"></i>了解更多
+                </a> -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Featured Analysis -->
+        <div class="row mt-4">
+          <div class="col-12">
+            <h2 class="mb-4"><i class="fas fa-star me-2"></i>特色分析</h2>
+          </div>
+          <div class="col-md-4 mb-4">
+            <div class="card gradient-card" style="background: linear-gradient(135deg, #6a11cb, #2575fc);">
+              <div class="card-body text-white text-center p-4">
+                <i class="fas fa-bullhorn feature-icon"></i>
+                <h3 class="card-title">川普聲量我最大</h3>
+                <p class="card-text">追蹤美國前總統川普的媒體聲量變化與輿論關注度。</p>
+                <a href="{% url 'app_voice_trump:home' %}" class="btn btn-light mt-3">查看分析</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-4">
+            <div class="card gradient-card" style="background: linear-gradient(135deg, #ff4e50, #f9d423);">
+              <div class="card-body text-white text-center p-4">
+                <i class="fas fa-vote-yea feature-icon"></i>
+                <h3 class="card-title">台北市長選舉聲量</h3>
+                <p class="card-text">分析各候選人的媒體曝光度與社群關注趨勢。</p>
+                <!-- <a href="#" class="btn btn-light mt-3">查看分析</a> -->
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-4">
+            <div class="card gradient-card" style="background: linear-gradient(135deg, #11998e, #38ef7d);">
+              <div class="card-body text-white text-center p-4">
+                <i class="fas fa-newspaper feature-icon"></i>
+                <h3 class="card-title">事件人物聲量分析</h3>
+                <p class="card-text">探索特定事件中人物的聲量變化與情緒走向。</p>
+                <!-- <a href="#" class="btn btn-light mt-3">查看分析</a> -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Counter -->
+        <div class="row mt-5">
+          <div class="col-12">
+            <div class="content-card">
+              <div class="row text-center">
+                <div class="col-md-3 col-6 mb-4 mb-md-0">
+                  <div class="stats-counter">1.2M+</div>
+                  <p>已分析新聞</p>
+                </div>
+                <div class="col-md-3 col-6 mb-4 mb-md-0">
+                  <div class="stats-counter">50K+</div>
+                  <p>關鍵詞分析</p>
+                </div>
+                <div class="col-md-3 col-6">
+                  <div class="stats-counter">5K+</div>
+                  <p>人物聲量追蹤</p>
+                </div>
+                <div class="col-md-3 col-6">
+                  <div class="stats-counter">120+</div>
+                  <p>特色分析報告</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endblock %}
+      </div>
+      <!-- End of Main Content -->
+
+      <!-- Footer -->
+      <footer class="footer mt-5">
+        <div class="container">
+          <div class="row">
+            <!-- <div class="col-md-4 mb-4 mb-md-0">
+              <h5>輿情大數據分析平台</h5>
+              <p>提供全方位的輿情分析服務，協助您掌握網路聲量動態與社會輿論趨勢。</p>
+            </div>
+            <div class="col-md-4 mb-4 mb-md-0">
+              <h5>快速連結</h5>
+              <ul class="list-unstyled">
+                <li><a href="{% url 'app_top_keyword:home' %}" class="text-white">熱門關鍵詞分析</a></li>
+                <li><a href="{% url 'app_top_person:home' %}" class="text-white">熱門人物排行</a></li>
+                <li><a href="{% url 'app_user_keyword:home' %}" class="text-white">自訂關鍵詞分析</a></li>
+                <li><a href="#" class="text-white">付費訂閱服務</a></li>
+              </ul>
+            </div>
+            <div class="col-md-4">
+              <h5>聯絡我們</h5>
+              <ul class="list-unstyled">
+                <li><i class="fas fa-envelope me-2"></i>info@yuqing-data.com</li>
+                <li><i class="fas fa-phone me-2"></i>(02) 1234-5678</li>
+                <li><i class="fas fa-map-marker-alt me-2"></i>台北市大安區輿情路123號</li>
+              </ul>
+            </div> -->
+          </div>
+          <hr class="mt-4 mb-3" style="border-color: rgba(255,255,255,0.1);">
+          <div class="row">
+            <div class="col-md-12 text-center">
+              <p class="mb-0">©   Copyright    C110118109林琲庭</p>
+            </div>
+          </div>
+        </div>
+      </footer>
+      <!-- End of Footer -->
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Additional Scripts -->
+    {% block extra_js %}
+    {% endblock %}
+  </body>
+</html>
