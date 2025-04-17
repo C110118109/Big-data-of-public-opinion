@@ -1,0 +1,508 @@
+{% extends 'base.html' %} 
+{% block title %}美國關稅影響分析{% endblock %} 
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-12">
+    <div class="content-card mb-4">
+      <h1 class="mb-3">美國關稅衝擊分析</h1>
+      <p class="lead">追蹤美國關稅政策對台灣及全球的影響與各地應對策略</p>
+    </div>
+  </div>
+
+  <!-- 顯示區塊-->
+  <div class="col-lg-6 mb-4">
+    <div class="content-card">
+      <div class="card-header bg-white text-black">
+        <h3 class="h5 text-uppercase mb-0">
+          <i class="fas fa-bullhorn me-2"></i>關稅衝擊聲量分析
+        </h3>
+        <small class="d-block mt-1">(資料週期:資料截止時間的前4周)</small>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <!-- Leaderboard Container -->
+          <div class="container-fluid">
+            <!-- Leaderboard Heading -->
+            <h4 class="mb-3 text-primary">台灣關稅衝擊現況</h4>
+            <p class="mb-3">
+              關稅政策帶來的潛在衝擊程度分析，可了解貿易政策對台灣不同產業和地區的影響力。
+            </p>
+            <p class="mb-4">總篇數:有多少篇新聞提到; 總次數:在相關新聞中被提到多少次</p>
+
+            <hr class="mb-4" />
+            <!-- Leaderboard Content -->
+            <div id="tariff_impact"></div>
+          </div>
+          <!-- /.container -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 區塊結束-->
+
+  <!-- 繪圖區塊-->
+  <div class="col-lg-6 mb-4">
+    <div class="content-card">
+      <div class="card-header bg-white text-black">
+        <h3 class="h5 text-uppercase mb-0">
+          <i class="fas fa-chart-pie me-2"></i>關稅議題分布情況
+        </h3>
+      </div>
+      <div class="card-body">
+        <!-- description -->
+        <h3 class="mb-3 text-primary"></h3>
+        <p class="mb-4">關稅政策影響哪些產業和地區最劇烈?</p>
+        <hr class="mb-4" />
+        <!-- Set a fixed height div to contain the chart -->
+        <div style="height: 240px; position: relative;">
+          <canvas id="bar_chart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 區塊結束-->
+
+  <!-- 顯示區塊-->
+  <div class="col-lg-6 mb-4">
+    <div class="content-card">
+      <div class="card-header bg-white text-black">
+        <h3 class="h5 text-uppercase mb-0">
+          <i class="fas fa-chart-line me-2"></i>關稅議題熱度變化
+        </h3>
+      </div>
+      <div class="card-body">
+        <!-- description -->
+        <h3 class="mb-3 text-primary"></h3>
+        <p class="mb-4">在哪個時間點關稅議題被新聞報導最多?</p>
+        <hr class="mb-4" />
+        <canvas id="line_chart" style="min-height: 300px;"></canvas>
+      </div>
+    </div>
+  </div>
+  <!-- 區塊結束-->
+
+  <!-- 縣市首長應對區塊-->
+  <div class="col-lg-6 mb-4">
+    <div class="content-card">
+      <div class="card-header bg-white text-black">
+        <h3 class="h5 text-uppercase mb-0">
+          <i class="fas fa-users me-2"></i>縣市首長應對策略追蹤
+        </h3>
+      </div>
+      <div class="card-body">
+        <p class="mb-4">各縣市首長如何應對美國關稅帶來的衝擊?</p>
+        <hr class="mb-4">
+        <ul id="mayor_responses" class="list-group">
+          <!-- Content will be dynamically inserted here -->
+        </ul>
+      </div>
+    </div>
+  </div>
+  <!-- 區塊結束-->
+
+  <!-- 熱門關聯詞區塊-->
+  <div class="col-lg-6 mb-4">
+    <div class="content-card">
+      <div class="card-header bg-white text-black">
+        <h3 class="h5 text-uppercase mb-0">
+          <i class="fas fa-link me-2"></i>關稅議題熱門關聯詞
+        </h3>
+      </div>
+      <div class="card-body">
+        <p class="mb-3">與關稅議題一同頻繁出現的關鍵詞，反映媒體報導的焦點</p>
+        <hr class="mb-4">
+        <div id="cloud" style="height: 300px; width: 100%; position: relative;"></div>
+      </div>
+    </div>
+  </div>
+  <!-- 區塊結束-->
+
+  <!-- 相關新聞區塊-->
+  <div class="col-lg-12 mb-4">
+    <div class="content-card">
+      <div class="card-header bg-white text-black">
+        <h3 class="h5 text-uppercase mb-0">
+          <i class="fas fa-newspaper me-2"></i>關稅議題相關新聞
+        </h3>
+      </div>
+      <div class="card-body">
+        <ul id="newslinks" class="list-group"></ul>
+      </div>
+    </div>
+  </div>
+  <!-- 區塊結束-->
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- jQuery指令用到的js-->
+<!-- 繪製line chart會用到，必須在chartjs之前先載入 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
+<!-- chartjs圖js-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+<!-- d3.js for word cloud -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
+<script src="https://cdn.rawgit.com/jasondavies/d3-cloud/v1.2.1/build/d3.layout.cloud.js"></script>
+<!-- 程式碼區 -->
+<script>
+  // Static data based on our analysis of the news excerpt
+  const freqByDate = {{ freqByDate|safe }}; // for line chart
+  const freqByRegion = {{ freqByRegion|safe }}; // for bar chart
+  const freqByIndustry = {{ freqByIndustry|safe }}; // for secondary dataset
+  const regions = {{ regions|safe }}; // for bar chart categories
+  const industries = {{ industries|safe }}; // for secondary dataset categories
+  const num_occurrence = {{ num_occurrence|safe }};
+  const num_frequency = {{ num_frequency|safe }};
+  const relatedKeywords = {{ relatedKeywords|safe }};
+  const mayor_responses = {{ mayor_responses|safe }};
+  const news_list = {{ news_list|safe }};
+  const photo = "https://cdn.ttv.com.tw/manasystem/FileData/News/558802df-1bbe-4850-9778-33c5480a2bce.jpg";
+
+  //display data and show chart
+  displayTariffImpact();
+  drawBarChart();
+  showLineChart();
+  displayMayorResponses();
+  displayRelatedNews();
+  drawWordCloud();
+
+  // *****************
+  // Function for displaying the tariff impact
+  function displayTariffImpact() {
+    // define a html block
+    let html_snippet = `
+          <div class="row stats-card p-3">
+              <div class="col-md-4">
+                  <a href="#">
+                      <img class="img-fluid rounded shadow-sm mb-3 mb-md-0" src=${photo} alt="關稅衝擊照片">
+                  </a>
+              </div>
+              <div class="col-md-8">
+                  <div class="card-body">
+                      <div class="d-flex align-items-center mb-3">
+                          <i class="fas fa-newspaper fa-2x text-primary me-3"></i>
+                          <h2 class="mb-0">總篇數: <span class="text-primary">${num_occurrence}</span> 篇</h2>
+                      </div>
+                      <div class="d-flex align-items-center">
+                          <i class="fas fa-hashtag fa-2x text-primary me-3"></i>
+                          <h2 class="mb-0">總次數: <span class="text-primary">${num_frequency}</span> 次</h2>
+                      </div>
+                  </div>
+              </div>
+          </div>`;
+
+    const new_div = document.createElement("div");
+    new_div.innerHTML += html_snippet;
+    document.getElementById("tariff_impact").appendChild(new_div);
+  }
+
+  // *****************
+  // Draw bar chart function
+  function drawBarChart() {
+    const regionValues = freqByRegion;
+    const regionLabels = regions;
+    const industryValues = freqByIndustry;
+    const industryLabels = industries;
+
+    // Define color arrays
+    const regionColors = [
+      'rgba(52, 152, 219, 0.6)',
+      'rgba(46, 204, 113, 0.6)',
+      'rgba(155, 89, 182, 0.6)',
+      'rgba(231, 76, 60, 0.6)',
+      'rgba(241, 196, 15, 0.6)',
+      'rgba(26, 188, 156, 0.6)',
+      'rgba(230, 126, 34, 0.6)',
+    ];
+
+    const industryColors = [
+      'rgba(52, 73, 94, 0.6)',
+      'rgba(243, 156, 18, 0.6)',
+      'rgba(149, 165, 166, 0.6)',
+      'rgba(211, 84, 0, 0.6)',
+      'rgba(41, 128, 185, 0.6)',
+    ];
+
+    // Data for chart
+    let data = {
+      labels: regionLabels,
+      datasets: [
+        {
+          label: "區域衝擊",
+          data: regionValues,
+          backgroundColor: regionColors.slice(0, regionValues.length),
+          borderColor: regionColors.slice(0, regionValues.length),
+          borderWidth: 1,
+        },
+        {
+          label: "產業衝擊",
+          data: industryValues,
+          backgroundColor: industryColors.slice(0, industryValues.length),
+          borderColor: industryColors.slice(0, industryValues.length),
+          borderWidth: 1,
+        }
+      ],
+    };
+    
+    // Options for chart
+    let options = {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true,
+              suggestedMax: Math.max(...regionValues, ...industryValues) * 1.1,
+            },
+            gridLines: {
+              color: 'rgba(0, 0, 0, 0.05)'
+            }
+          },
+        ],
+        xAxes: [
+          {
+            gridLines: {
+              color: 'rgba(0, 0, 0, 0.05)'
+            }
+          }
+        ]
+      },
+      legend: {
+        display: true,
+        position: 'top'
+      },
+      tooltips: {
+        mode: 'index',
+        intersect: false
+      }
+    };
+
+    // Get chart element
+    const barChartElem = document.getElementById("bar_chart");
+    
+    // Create new bar chart
+    new Chart(barChartElem, {
+      type: "bar",
+      data: data,
+      options: options,
+    });
+  }
+
+  // *****************
+  // Line chart function
+  function showLineChart() {
+    const lineChartElem = document
+      .getElementById("line_chart")
+      .getContext("2d");
+
+    const freq_values = freqByDate;
+
+    const myoptions = {
+      type: "line",
+      data: {
+        datasets: [
+          {
+            label: "關稅議題報導量",
+            borderColor: '#3498db',
+            backgroundColor: 'rgba(52, 152, 219, 0.2)',
+            borderWidth: 2,
+            pointBackgroundColor: '#3498db',
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            data: freq_values,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: {
+          display: true,
+          position: 'top'
+        },
+        scales: {
+          xAxes: [
+            {
+              type: "time",
+              time: {
+                unit: "day",
+                displayFormats: {
+                  day: "MM/DD",
+                },
+              },
+              gridLines: {
+                color: 'rgba(0, 0, 0, 0.05)'
+              }
+            },
+          ],
+          yAxes: [
+            {
+              ticks: {
+                beginAtZero: true,
+              },
+              display: true,
+              scaleLabel: {
+                display: true,
+                labelString: "報導數量",
+              },
+              gridLines: {
+                color: 'rgba(0, 0, 0, 0.05)'
+              }
+            },
+          ],
+        },
+        tooltips: {
+          mode: 'index',
+          intersect: false
+        },
+        hover: {
+          mode: 'nearest',
+          intersect: true
+        }
+      },
+    };
+
+    // Clear previous chart if exists
+    if (window.time_line_chart) {
+      time_line_chart.destroy();
+    }
+
+    // Create new chart
+    time_line_chart = new Chart(lineChartElem, myoptions);
+  }
+
+  // Function to display mayor responses
+  function displayMayorResponses() {
+    const mayorResponsesEl = document.getElementById('mayor_responses');
+    mayorResponsesEl.innerHTML = '';
+
+    mayor_responses.forEach((response, index) => {
+      const listItem = document.createElement('li');
+      listItem.className = 'list-group-item d-flex justify-content-between align-items-center py-3';
+      
+      const content = `
+        <div class="ms-2 me-auto">
+          <div class="fw-bold">${response.mayor} - ${response.region}</div>
+          ${response.action}
+        </div>
+        <span class="badge bg-primary rounded-pill">${index + 1}</span>
+      `;
+      
+      listItem.innerHTML = content;
+      mayorResponsesEl.appendChild(listItem);
+    });
+  }
+
+  // Function to display related news
+  function displayRelatedNews() {
+    const newsLinksEl = document.getElementById('newslinks');
+    newsLinksEl.innerHTML = '';
+
+    news_list.forEach(news => {
+      const listItem = document.createElement('li');
+      listItem.className = 'list-group-item py-2 border-bottom';
+      
+      const content = `
+        <div class="d-flex align-items-center">
+          <span class="badge bg-secondary me-2 px-2 py-1">${news.category}</span>
+          <span class="text-muted small me-2">${news.date}</span>
+          <a href="${news.link}" class="text-decoration-none" target="_blank">${news.title}</a>
+        </div>
+      `;
+      
+      listItem.innerHTML = content;
+      newsLinksEl.appendChild(listItem);
+    });
+  }
+
+  // Word cloud drawing function
+  function drawWordCloud() {
+    // Word cloud data preparation
+    let wordCloudData = relatedKeywords.map(keyword => {
+      return {
+        text: keyword.text,
+        size: keyword.size
+      };
+    });
+
+    // Set fixed dimensions for the cloud
+    const width = 500;
+    const height = 300;
+
+    // Create word cloud layout
+    d3.layout
+      .cloud()
+      .size([width, height])
+      .words(wordCloudData)
+      .padding(5)
+      .rotate(function() {
+        return ~~(Math.random() * 2) * 90;
+      })
+      .font("'Noto Sans TC', sans-serif")
+      .fontSize(function(d) {
+        return d.size;
+      })
+      .on("end", drawCloud)
+      .start();
+
+    function drawCloud(words) {
+      // Use a more visually appealing color scheme
+      const colorScheme = [
+        "#3498db", "#2ecc71", "#9b59b6", "#e74c3c", "#f1c40f",
+        "#1abc9c", "#e67e22", "#95a5a6", "#f39c12", "#34495e"
+      ];
+      
+      // Clear previous cloud
+      d3.select("#cloud").html("");
+      
+      // Create SVG
+      d3.select("#cloud")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("preserveAspectRatio", "xMidYMid meet")
+        .append("g")
+        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+        .selectAll("text")
+        .data(words)
+        .enter()
+        .append("text")
+        .style("font-size", function(d) {
+          return d.size + "px";
+        })
+        .style("font-family", "'Noto Sans TC', sans-serif")
+        .style("font-weight", function(d) {
+          return d.size > 20 ? "bold" : "normal";
+        })
+        .style("fill", function(d, i) {
+          return colorScheme[i % colorScheme.length];
+        })
+        .attr("text-anchor", "middle")
+        .attr("transform", function(d) {
+          return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+        })
+        .text(function(d) {
+          return d.text;
+        })
+        .on("mouseover", function() {
+          d3.select(this)
+            .transition()
+            .duration(200)
+            .style("font-size", function(d) {
+              return (d.size + 2) + "px";
+            });
+        })
+        .on("mouseout", function() {
+          d3.select(this)
+            .transition()
+            .duration(200)
+            .style("font-size", function(d) {
+              return d.size + "px";
+            });
+        });
+    }
+  }
+</script>
+{% endblock %}

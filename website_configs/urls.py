@@ -14,5 +14,7 @@ urlpatterns = [
 
     # full text search and associated keyword display
     path('userkeyword_assoc/', include('app_user_keyword_association.urls')),
+    
+    path('app_us_tariff/', include('app_us_tariff.urls')),
 
 ]
