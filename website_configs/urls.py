@@ -17,4 +17,7 @@ urlpatterns = [
     
     path('app_us_tariff/', include('app_us_tariff.urls')),
 
+    # user keyword sentiment 
+    path('userkeyword_senti/', include('app_user_keyword_sentiment.urls')),
+
 ]

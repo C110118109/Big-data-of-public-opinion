@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'app_voice_trump',
     'app_user_keyword_association',
     'app_us_tariff',
+    'app_user_keyword_sentiment',
 ]
 
 MIDDLEWARE = [
