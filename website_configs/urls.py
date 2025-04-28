@@ -20,4 +20,5 @@ urlpatterns = [
     # user keyword sentiment 
     path('userkeyword_senti/', include('app_user_keyword_sentiment.urls')),
 
+    path('personmayor/', include('app_person_mayor.urls')),
 ]

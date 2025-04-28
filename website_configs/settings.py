@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'app_user_keyword_association',
     'app_us_tariff',
     'app_user_keyword_sentiment',
+    'app_person_mayor',
 ]
 
 MIDDLEWARE = [
