@@ -21,4 +21,11 @@ urlpatterns = [
     path('userkeyword_senti/', include('app_user_keyword_sentiment.urls')),
 
     path('personmayor/', include('app_person_mayor.urls')),
+
+    # full text search and associated keyword display using db
+    path('userkeyword_db/', include('app_user_keyword_db.urls')),
+
+    # admin 後台資料庫管理
+    path('admin/', admin.site.urls),
+
 ]

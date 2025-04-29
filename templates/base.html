@@ -130,17 +130,20 @@
               </div>  -->
 
               <!-- 更多選項 -->
-              <!-- <div class="btn-group">
+              <div class="btn-group">
                 <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                   <i class="fas fa-ellipsis-h me-1"></i> 更多
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
                   <!-- 使用資料庫 -->
-                  <!-- <h6 class="dropdown-header">使用DB</h6> -->
+                  <h6 class="dropdown-header">使用DB</h6>
+                  <a class="dropdown-item" href="{% url 'app_user_keyword_db:home' %}">
+                    <i class="fas fa-database me-2"></i>自訂全文檢索與關聯分析db
+                  </a>
                   <!-- <a class="dropdown-item" href="#">
                     <i class="fas fa-database me-2"></i>熱門人物資料庫查詢
-                  </a>
-                  <a class="dropdown-item" href="#">
+                  </a> -->
+                  <!-- <a class="dropdown-item" href="#">
                     <i class="fas fa-search me-2"></i>昨日新聞資料庫全文檢索
                   </a> -->
                   
@@ -175,8 +178,8 @@
                   <!-- <a class="dropdown-item" href="#">
                     <i class="fas fa-crown me-2"></i>付費訂閱服務
                   </a> -->
-                <!-- </div>
-              </div> --> 
+                </div>
+              </div>
             </ul>
           </div>
         </div>

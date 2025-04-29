@@ -1,0 +1,495 @@
+{% extends 'base.html' %} 
+{% block title %}全文檢索與你關心的關鍵詞關聯分析{% endblock %} 
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-12">
+    <div class="content-card mb-4">
+      <h1 class="mb-3">全文檢索與你關心的關鍵詞關聯分析</h1>
+      <p class="lead">對你想要了解的議題進行全文檢索，找出有哪些詞與你的關鍵詞一起出現</p>
+    </div>
+  </div>
+
+  <div class="col-lg-6 mb-4">
+    <!-- 輸入條件區塊 -->
+    <div class="content-card h-100">
+      <div class="card-header bg-white text-black">
+        <h3 class="h5 text-uppercase mb-0">
+          <i class="fas fa-search me-2"></i>輸入條件
+        </h3>
+        <p></p>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <label class="col-md-3 col-form-label text-md-end">關鍵詞</label>
+          <div class="col-md-9">
+            <input id="input_keyword" name="userkey" value="緬甸 地震" class="form-control" />
+            <div class="form-text text-muted">全文搜尋，可輸入多個關鍵詞或片段詞句，以空白隔開</div>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label text-md-end">條件</label>
+          <div class="col-md-9">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="and" name="condradio" id="condradio1" checked />
+              <label class="form-check-label" for="condradio1">and</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="or" name="condradio" id="condradio2" />
+              <label class="form-check-label" for="condradio2">or</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label text-md-end">新聞類別</label>
+          <div class="col-md-9">
+            <select id="category-select" class="form-select">
+              <option value="全部" selected>全部</option>
+              <option value="政治">政治</option>
+              <option value="運動">運動</option>
+              <option value="娛樂">娛樂</option>
+              <option value="國際">國際</option>
+              <option value="地方">地方</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="row mb-3">
+          <label class="col-md-3 col-form-label text-md-end">最近多少周</label>
+          <div class="col-md-9">
+            <select id="weeks-select" class="form-select">
+              <option value="1">1週</option>
+              <option value="2" selected>2週</option>
+              <option value="3">3週</option>
+              <option value="4">4週</option>
+              <option value="6">6週</option>
+              <option value="8">8週</option>
+              <option value="12">12週</option>
+            </select>
+            <div class="form-text text-muted">以最新資料時間為準，往前推多少周</div>
+          </div>
+        </div>
+        
+        <div class="row mb-3">
+          <div class="col-md-9 ms-auto">
+            <button type="button" id="btn_ok" class="btn btn-primary">
+              <i class="fas fa-search me-2"></i>查詢
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 輸入區塊結束-->
+
+  <!-- 繪圖區塊-->
+  <div class="col-lg-6 mb-4">
+    <div class="content-card h-100">
+      <div class="card-header bg-white text-black">
+        <h3 class="h5 text-uppercase mb-0">
+          <i class="fas fa-cloud me-2"></i>這些詞與它同時出現
+        </h3>
+      </div>
+      <p></p>
+      <div class="card-body">
+        <div id="cloud" style="height: 300px;"></div>
+        <h2 id="num_articles" class="text-center mt-3"></h2>
+      </div>
+    </div>
+  </div>
+  <!-- 區塊結束-->
+
+  <!-- 關鍵字所在的段落 -->
+  <div class="col-lg-6 mb-4">
+    <div class="content-card">
+      <div class="card-header bg-white text-black d-flex justify-content-between align-items-center">
+        <h3 class="h5 text-uppercase mb-0">
+          <i class="fas fa-paragraph me-2"></i>關鍵字所在的段落
+        </h3>
+        <!-- <span class="badge bg-primary" id="paragraphs-count">0 段</span> -->
+      </div>
+      <p></p>
+      <div class="card-body" style="max-height: 420px; overflow-y: auto;">
+        <ul class="list-group" id="same_paragraph"></ul>
+      </div>
+    </div>
+  </div>
+  <!-- 區塊結束-->
+
+  <!-- 相關新聞區塊 -->
+  <div class="col-lg-6 mb-4">
+    <div class="content-card">
+      <div class="card-header bg-white text-black d-flex justify-content-between align-items-center">
+        <h3 class="h5 text-uppercase mb-0">
+          <i class="fas fa-newspaper me-2"></i>相關新聞
+        </h3>
+        <!-- <span class="badge bg-primary" id="news-count">0 篇</span> -->
+      </div>
+      <p></p>
+      <div class="card-body" style="max-height: 420px; overflow-y: auto;">
+        <ul class="list-group" id="newslinks"></ul>
+      </div>
+    </div>
+  </div>
+  <!-- 區塊結束-->
+
+  <!-- 出現頻率以時間呈現 -->
+  <div class="col-lg-6 mb-4">
+    <div class="content-card">
+      <div class="card-header bg-white text-black">
+        <h3 class="h5 text-uppercase mb-0">
+          <i class="fas fa-chart-line me-2"></i>出現頻率以時間呈現
+        </h3>
+      </div>
+      <p></p>
+      <div class="card-body">
+        <small class="d-block mb-2">觀察每個時間點的有多少篇報導(聲量大小)</small>
+        <canvas id="keyword_time_line_chart" height="300"></canvas>
+      </div>
+    </div>
+  </div>
+  <!-- 區塊結束 -->
+
+  <!-- 同時出現的關鍵字 + 熱門程度合併區塊 -->
+  <div class="col-lg-6 mb-4">
+    <div class="content-card">
+      <div class="card-header bg-white text-black">
+        <h3 class="h5 text-uppercase mb-0">
+          <i class="fas fa-fire me-2"></i>熱門程度分析
+        </h3>
+      </div>
+      <p></p>
+      <div class="card-body">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="related-tab" data-bs-toggle="tab" data-bs-target="#related" type="button" role="tab">同時出現關鍵字</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="articles-tab" data-bs-toggle="tab" data-bs-target="#articles" type="button" role="tab">提及的文章數</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="frequency-tab" data-bs-toggle="tab" data-bs-target="#frequency" type="button" role="tab">提及的次數</button>
+          </li>
+        </ul>
+        <div class="tab-content pt-3" id="myTabContent" style="height: 350px; overflow-y: auto;">
+          <div class="tab-pane fade show active" id="related" role="tabpanel">
+            <ul id="related_words" class="list-group"></ul>
+          </div>
+          <div class="tab-pane fade" id="articles" role="tabpanel">
+            <ul id="keyword_article_count" class="list-group"></ul>
+          </div>
+          <div class="tab-pane fade" id="frequency" role="tabpanel">
+            <ul id="keyword_frequency" class="list-group"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 區塊結束 -->
+</div>
+{% endblock %} 
+
+{% block extra_js %}
+<!-- chartjs-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+
+<!-- cloud chart -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
+<script src="https://cdn.rawgit.com/jasondavies/d3-cloud/v1.2.1/build/d3.layout.cloud.js"></script>
+
+<!-- Here are your codes -->
+<script>
+  // Show the page with default setting when page is initialized.
+  call_ajax();
+
+  // btn submit
+  $("#btn_ok").on("click", function () {
+    call_ajax();
+  });
+
+  // category select
+  $("#category-select").on("change", function () {
+    call_ajax();
+  });
+
+  // weeks select
+  $("#weeks-select").on("change", function () {
+    call_ajax();
+  });
+
+  // condition radio button
+  $("input[name='condradio']").on("change", function () {
+    call_ajax();
+  });
+
+  function call_ajax() {
+    const userkey = $("#input_keyword").val();
+    const weeks = $("#weeks-select").val();
+    const cate = $("#category-select").val();
+    const cond = $("input[name='condradio']:checked").val();
+
+    if (userkey.length < 2) {
+      alert("輸入關鍵字不可空白或小於兩個中文字!");
+      return 0;
+    }
+    $.ajax({
+      type: "POST",
+      url: "api_get_userkey_data/",
+      data: {
+        userkey: userkey,
+        cate: cate,
+        weeks: weeks,
+        cond: cond,
+      }, // pass to server
+      success: function (received) {
+        //若查無資料，顯示提醒訊息
+        if (received["error"]) {
+          alert("檢索異常回應: " + received["error"]);
+          return 0;
+        }
+        // display number of articles or stories
+        const num_articles = received["num_articles"];
+        $("#num_articles").empty();
+        $("#num_articles").html(`<i class="fas fa-newspaper me-2"></i>總篇數: <span class="text-primary">${num_articles}</span>`);
+        
+        // Update counters
+        $("#news-count").text(`${Math.min(num_articles, 10)} 篇`);
+        
+        // show news title and link
+        const newslinks = received["newslinks"];
+        $("#newslinks").empty();
+        if (newslinks.length == 0) {
+          $("#newslinks").append('<li class="list-group-item text-center text-muted">無相關新聞</li>');
+        } else {
+          // show news title and link
+          for (let i = 0; i < newslinks.length; i++) {
+            const items = `
+              <li class="list-group-item py-2 border-bottom">
+                <div class="d-flex align-items-center">
+                  <span class="badge bg-secondary me-2 px-2 py-1">${newslinks[i].category}</span>
+                  <a href="${newslinks[i].link}" class="text-decoration-none" target="_blank">${newslinks[i].title}</a>
+                </div>
+              </li>`;
+            $("#newslinks").append(items);
+          }
+        }
+
+        // show related words
+        const related_words = received["related_words"];
+        $("#related_words").empty();
+        for (let i = 0; i < related_words.length; i++) {
+          const items = `<li class="list-group-item d-flex justify-content-between align-items-center">
+                          ${related_words[i]}
+                          <span class="badge bg-primary rounded-pill">${i+1}</span>
+                        </li>`;
+          $("#related_words").append(items);
+        }
+
+        // show paragraphs containing the user keywords
+        const same_paragraph = received["same_paragraph"];
+        $("#same_paragraph").empty();
+        $("#paragraphs-count").text(`${same_paragraph.length} 段`);
+
+        if (same_paragraph.length == 0) {
+          $("#same_paragraph").append('<li class="list-group-item text-center text-muted">無相關段落</li>');
+        } else {
+          for (let i = 0; i < same_paragraph.length; i++) {
+            const msg = `<li class="list-group-item py-2 border-bottom">
+                          <span class="badge bg-secondary me-2">${i+1}</span>
+                          ${same_paragraph[i]}
+                        </li>`;
+            $("#same_paragraph").append(msg);
+          }
+        }
+
+        // draw word cloud for related words
+        topWordToDraw = received.clouddata;
+        $("#cloud").empty();
+        drawCloud(topWordToDraw, "#cloud");
+
+        const article_count = received["key_occurrence_cat"];
+        $("#keyword_article_count").empty();
+
+        //將內容加上li標籤附加起來顯示
+        for (let key in article_count) {
+          let paste = `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${key}
+                        <span class="badge bg-primary rounded-pill">${article_count[key]}</span>
+                      </li>`;
+          $("#keyword_article_count").append(paste);
+        }
+        
+        const kwfreq = received["key_freq_cat"];
+        $("#keyword_frequency").empty();
+        for (let key in kwfreq) {
+          let paste = `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${key}
+                        <span class="badge bg-success rounded-pill">${kwfreq[key]}</span>
+                      </li>`;
+          $("#keyword_frequency").append(paste);
+        }
+
+        const data_key_time_freq = received["key_time_freq"];
+        showtimechart(data_key_time_freq);
+      }, //success function
+
+      error: function (msg, status) {
+        console.log(msg);
+        console.log(status);
+      }, //print status and msg when ajax goes wrong
+    }); //ajax
+  } //function call_ajax()
+
+  function drawCloud(topWordToDraw, element_id) {
+    // You should set a proper box size to show cloud chart
+    const width = 400;
+    const height = 300;
+
+    // First define your cloud data, using `text` and `size` properties:
+    // Next you need to use the layout script to calculate the placement, rotation and size of each word:
+    // Constructs a new cloud layout instance.
+    // Wordcloud features that are different from one word to the other
+    d3.layout
+      .cloud()
+      .size([width, height])
+      .words(topWordToDraw) //data for cloud chart
+      .rotate(function () {
+        return 0; // don't rotate
+      })
+      .font("Impact")
+      .fontSize(function (d) {
+        return d.size;
+      })
+      .on("end", draw) //call function draw()
+      .start();
+
+    // Finally implement `draw`, which performs the D3 drawing
+    // This function takes the output of 'layout' above and draw the words
+    // Wordcloud features that are THE SAME from one word to the other can be here
+    function draw(words) {
+      const colorScheme = [
+        "#3498db", "#2ecc71", "#9b59b6", "#e74c3c", "#f1c40f",
+        "#1abc9c", "#e67e22", "#95a5a6", "#f39c12", "#34495e"
+      ];
+
+      // append the svg object to the body of the page
+      d3.select(element_id)
+        .append("svg") // element_id such as "#cloud"
+        .attr("width", width)
+        .attr("height", height)
+        .append("g")
+        .attr(
+          "transform",
+          "translate(" + ~~(width / 2) + "," + ~~(height / 2) + ")"
+        )
+        .selectAll("text")
+        .data(words)
+        .enter()
+        .append("text")
+        .style("font-size", function (d) {
+          return d.size + "px";
+        })
+        .style("-webkit-touch-callout", "none")
+        .style("-webkit-user-select", "none")
+        .style("-khtml-user-select", "none")
+        .style("-moz-user-select", "none")
+        .style("-ms-user-select", "none")
+        .style("user-select", "none")
+        .style("cursor", "default")
+        .style("font-family", "Impact")
+        .style("fill", function (d, i) {
+          return colorScheme[i % colorScheme.length];
+        })
+        .attr("text-anchor", "middle")
+        .attr("transform", function (d) {
+          return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+        })
+        .text(function (d) {
+          return d.text;
+        });
+    } //draw
+  } //drawCloud()
+
+  // 宣告全域變數用於存放圖表實例
+  let line_chart = null;
+
+  function showtimechart(data_key_time_freq) {
+    //取得繪圖元件
+    const ctx_key_time = document
+      .getElementById("keyword_time_line_chart")
+      .getContext("2d");
+
+    const myoptions = {
+      type: "line",
+      data: {
+        datasets: [
+          {
+            label: "關鍵詞出現頻率",
+            borderColor: "#3498db",
+            backgroundColor: "rgba(52, 152, 219, 0.2)",
+            borderWidth: 2,
+            pointBackgroundColor: "#3498db",
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            data: data_key_time_freq,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: {
+          display: true,
+          position: 'top'
+        },
+        scales: {
+          xAxes: [
+            {
+              type: "time",
+              time: {
+                unit: "day",
+                displayFormats: {
+                  day: "MM/DD"
+                }
+              },
+              gridLines: {
+                color: 'rgba(0, 0, 0, 0.05)'
+              }
+            }
+          ],
+          yAxes: [
+            {
+              ticks: {
+                beginAtZero: true
+              },
+              display: true,
+              scaleLabel: {
+                display: true,
+                labelString: "出現次數"
+              },
+              gridLines: {
+                color: 'rgba(0, 0, 0, 0.05)'
+              }
+            }
+          ]
+        },
+        tooltips: {
+          mode: 'index',
+          intersect: false
+        }
+      },
+    };
+
+    // 檢查並清除舊圖
+    if (line_chart) {
+      line_chart.destroy();
+    }
+
+    // 畫新圖
+    line_chart = new Chart(ctx_key_time, myoptions);
+  } //line_chart
+</script>
+{% endblock %}
