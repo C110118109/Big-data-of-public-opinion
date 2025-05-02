@@ -18,5 +18,5 @@ urlpatterns = [
     # top (popular) persons
     path('', views.home, name='home'),
     # ajax path
-    path('api_get_topPerson/', views.api_get_topPerson),
+    path('api_get_topPerson/', views.api_get_topPerson,name='api_get_topPerson'),
 ]

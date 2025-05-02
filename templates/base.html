@@ -140,9 +140,11 @@
                   <a class="dropdown-item" href="{% url 'app_user_keyword_db:home' %}">
                     <i class="fas fa-database me-2"></i>自訂全文檢索與關聯分析db
                   </a>
-                  <!-- <a class="dropdown-item" href="#">
-                    <i class="fas fa-database me-2"></i>熱門人物資料庫查詢
-                  </a> -->
+                  <a class="dropdown-item" href="{% url 'app_top_person_db:home' %}">
+                    <i class="fas fa-database me-2"></i>熱門人物(從資料庫查詢)</a>
+                  <a class="dropdown-item" href=" {%url 'app_top_person_db:calculate_top_person' %}">
+                    <i class="fas fa-database me-2"></i>熱門人物資料庫查詢(管理者定時執行)
+                  </a>
                   <!-- <a class="dropdown-item" href="#">
                     <i class="fas fa-search me-2"></i>昨日新聞資料庫全文檢索
                   </a> -->

@@ -1,0 +1,447 @@
+{% extends 'base.html' %} 
+{% block title %}熱門人物{% endblock %} 
+
+{% block content %}
+<div class="col-lg-12">
+  <div class="content-card mb-4">
+    <h1 class="mb-3">熱門人物</h1>
+    <p class="lead">哪個人物被報導最多次? 透過數據分析了解新聞焦點人物</p>
+  </div>
+</div>
+
+<!-- message -->
+{% if messages %}
+  <div class="col-lg-12 mb-4" id="msg-container">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show w-100 mb-2" role="alert">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+
+  <script>
+    setTimeout(function() {
+      var msgContainer = document.getElementById('msg-container');
+      if(msgContainer){
+        msgContainer.style.transition = "opacity 0.5s";
+        msgContainer.style.opacity = 0;
+        setTimeout(function() {
+          msgContainer.remove();
+        }, 500);
+      }
+    }, 3000);
+  </script>
+{% endif %}
+
+<div class="row">
+  <!-- 左側區塊 - 篩選條件和熱門關鍵字 -->
+  <div class="col-lg-5">
+    <!-- 篩選條件區塊 -->
+    <div class="content-card mb-4">
+      <div class="card-header bg-white text-black">
+        <h3 class="h5 text-uppercase mb-0">
+          <i class="fas fa-filter me-2"></i>篩選條件
+        </h3>
+        <small class="d-block mt-1">(資料週期:資料截止時間的前4周)</small>
+      </div>
+      <p></p>
+      <div class="card-body">
+        <div class="mb-3 row">
+          <label class="col-sm-3 form-label text-md-end">
+            <i class="fas fa-newspaper me-2"></i>新聞類別
+          </label>
+          <div class="col-md-9">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="全部" name="cateradio" id="cateAll" checked />
+              <label class="form-check-label" for="cateAll">全部</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="政治" name="cateradio" id="catePolitics" />
+              <label class="form-check-label" for="catePolitics">政治</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="運動" name="cateradio" id="cateSports" />
+              <label class="form-check-label" for="cateSports">運動</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="娛樂" name="cateradio" id="cateEntertain" />
+              <label class="form-check-label" for="cateEntertain">娛樂</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="國際" name="cateradio" id="cateInternational" />
+              <label class="form-check-label" for="cateInternational">國際</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="地方" name="cateradio" id="cateSociety" />
+              <label class="form-check-label" for="cateSociety">地方</label>
+            </div>
+            <div class="form-text text-muted">新聞類別內定值為"全部"新聞</div>
+          </div>
+        </div>
+        <!-- form group -->
+
+        <!-- Number of persons form group -->
+        <div class="mb-3 row">
+          <label class="col-md-3 form-label text-md-end">
+            <i class="fas fa-users me-2"></i>顯示人數
+          </label>
+          <div class="col-md-9">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="5" name="topkradio" id="topk5" />
+              <label class="form-check-label" for="topk5">5</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="10" name="topkradio" id="topk10" checked />
+              <label class="form-check-label" for="topk10">10</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="20" name="topkradio" id="topk20" />
+              <label class="form-check-label" for="topk20">20</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="30" name="topkradio" id="topk30" />
+              <label class="form-check-label" for="topk30">30</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="40" name="topkradio" id="topk40" />
+              <label class="form-check-label" for="topk40">40</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="50" name="topkradio" id="topk50" />
+              <label class="form-check-label" for="topk50">50</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="60" name="topkradio" id="topk60" />
+              <label class="form-check-label" for="topk60">60</label>
+            </div>
+            <div class="form-text text-muted">內定值為10</div>
+          </div>
+        </div>
+        <!-- form group -->
+      </div>
+      <!-- card body -->
+    </div>
+    <!-- card -->
+
+    <!-- 熱門關鍵字區塊 -->
+    <div class="content-card">
+      <div class="card-header bg-white text-black d-flex justify-content-between align-items-center">
+        <h3 class="h5 text-uppercase mb-0">
+          <i class="fas fa-list-ol me-2"></i>熱門關鍵字(頻率次數)
+        </h3>
+        <!-- <span class="badge bg-primary" id="people-count">0 人</span> -->
+      </div>
+      <p></p>
+      <div class="card-body">
+        <!-- 滾動容器，固定高度並添加滾動條 -->
+        <div class="scrollable-container" id="scrollable-topkeys">
+          <ul id="topkeys" class="list-group"></ul>
+        </div>
+      </div>
+    </div>
+    <!-- 熱門關鍵字區塊結束 -->
+  </div>
+
+  <!-- 右側區塊 - 熱門關鍵字繪圖 -->
+  <div class="col-lg-7">
+    <div class="content-card h-100">
+      <div class="card-header bg-white text-black">
+        <h3 class="h5 text-uppercase mb-0">
+          <i class="fas fa-chart-bar me-2"></i>熱門關鍵字繪圖
+        </h3>
+      </div>
+      <div class="card-body">
+        <div class="chart-container" style="position: relative; height: 550px;">
+          <canvas id="mychart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 
+
+{% block extra_js %}
+<!-- chartjs js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+
+<!-- Your JavaScript Codes -->
+<script>
+  //Write your JS code here!
+
+  // Call ajax function when page is loaded
+  call_ajax();
+
+  // event handling for category radio button
+  $("input[name='cateradio']").on("change", function () {
+    call_ajax();
+  }); //event function
+
+  // event handling for top k radio button
+  $("input[name='topkradio']").on("change", function () {
+    call_ajax();
+  }); //event function
+
+  // Here is the Ajax function to draw chart
+  function call_ajax() {
+    const cate = $("input[name='cateradio']:checked").val();
+    const topk = $("input[name='topkradio']:checked").val();
+    $.ajax({
+      type: "POST",
+      // url寫法
+      url: "api_get_topPerson/",
+      //url: "{% url 'app_top_person_db:api_get_topPerson' %}",
+      data: { news_category: cate, topk: topk },
+      success: function (received) {
+        if (received.error) {
+          alert(received.error);
+          // 清空圖表與熱門詞
+          $("#topkeys").empty();
+          $("#people-count").text("0 人");
+          if (window.barchart) {
+            barchart.destroy();
+          }
+          return;
+        }
+
+        chart_data = received.chart_data;
+        wf_pairs = received.wf_pairs;
+        // Show chart data on console
+        console.log(wf_pairs);
+
+        // Draw chart
+        showChart(chart_data);
+        showTopKeys(wf_pairs);
+      }, //ajax function
+    }); //ajax
+  } //call_ajax
+
+  //* 顯示關鍵詞資料函數
+  function showTopKeys(items) {
+    //先清除前一次的資料
+    $("#topkeys").empty();
+    
+    // 更新人數計數
+    $("#people-count").text(items.length + " 人");
+
+    // 判斷是否需要設置滾動條
+    const scrollContainer = document.getElementById("scrollable-topkeys");
+    if (items.length > 8) {
+      scrollContainer.style.height = "380px";
+      scrollContainer.style.overflowY = "auto";
+      
+      // 如果超過10個，顯示滾動提示
+      // $("#topkeys").append(`
+      //   <div class="text-center mb-2 text-muted scroll-tip">
+      //     <small><i class="fas fa-mouse-pointer me-1"></i> 往下滾動查看更多</small>
+      //   </div>
+      // `);
+    } else {
+      scrollContainer.style.height = "auto";
+      scrollContainer.style.overflowY = "visible";
+    }
+
+    //將內容加上li標籤附加起來，顯示在顯示區"topkeys"
+    for (let i = 0; i < items.length; i++) {
+      // 為前三名添加特殊樣式
+      let rankClass = "";
+      let rankIcon = "";
+      
+      if (i === 0) {
+        rankClass = "rank-first";
+        rankIcon = '<i class="fas fa-trophy text-warning me-2"></i>';
+      } else if (i === 1) {
+        rankClass = "rank-second";
+        rankIcon = '<i class="fas fa-medal text-secondary me-2"></i>';
+      } else if (i === 2) {
+        rankClass = "rank-third";
+        rankIcon = '<i class="fas fa-award text-danger me-2"></i>';
+      }
+      
+      let item_li = `<li class="list-group-item d-flex justify-content-between align-items-center ${rankClass}">
+                       <span>${rankIcon}${items[i]}</span>
+                       <span class="badge bg-primary rounded-pill">${i+1}</span>
+                     </li>`;
+      $("#topkeys").append(item_li);
+    }
+  } //function
+
+  //**繪圖函數showChart()
+  function showChart(chart_data) {
+    // 畫圖需要的數據資料
+    let values = chart_data.values;
+    let labels = chart_data.labels;
+    let category = chart_data.category;
+    
+    // 定義一個固定的顏色陣列，更美觀
+    const colorPalette = [
+      'rgba(75, 192, 192, 0.7)',
+      'rgba(54, 162, 235, 0.7)',
+      'rgba(153, 102, 255, 0.7)',
+      'rgba(255, 159, 64, 0.7)',
+      'rgba(255, 99, 132, 0.7)',
+      'rgba(255, 206, 86, 0.7)',
+      'rgba(231, 233, 237, 0.7)',
+      'rgba(49, 91, 124, 0.7)',
+      'rgba(0, 181, 204, 0.7)',
+      'rgba(131, 56, 236, 0.7)',
+      'rgba(255, 111, 97, 0.7)',
+      'rgba(46, 213, 115, 0.7)',
+      'rgba(71, 89, 126, 0.7)',
+      'rgba(77, 5, 232, 0.7)',
+      'rgba(255, 127, 80, 0.7)',
+    ];
+
+    // 生成使用固定顏色陣列的顏色
+    let backgroundColor = [];
+    let borderColor = [];
+    
+    for (let i = 0; i < values.length; i++) {
+      let colorIndex = i % colorPalette.length;
+      backgroundColor.push(colorPalette[colorIndex]);
+      borderColor.push(colorPalette[colorIndex].replace('0.7', '1.0'));
+    }
+
+    //第1個變數: 餵給chart的資料
+    let data = {
+      labels: labels,
+      datasets: [
+        {
+          label: category,
+          data: values,
+          backgroundColor: backgroundColor,
+          borderColor: borderColor,
+          borderWidth: 1,
+        },
+      ],
+    };
+
+    //第2個變數: chart的選項  指定y坐標軸從零開始顯示
+    let options = {
+      responsive: true,
+      maintainAspectRatio: false, 
+      scales: {
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true,
+              // 確保Y軸只顯示整數值
+              callback: function(value) {if (value % 1 === 0) {return value;}},
+            },
+            gridLines: {
+              color: 'rgba(0, 0, 0, 0.05)',
+            }
+          },
+        ],
+        xAxes: [
+          {
+            gridLines: {
+              color: 'rgba(0, 0, 0, 0.05)',
+            }
+          }
+        ]
+      },
+      legend: {
+        display: true,
+        position: 'top',
+      },
+      tooltips: {
+        mode: 'index',
+        intersect: false,
+      }
+    };
+
+    //取得在前面html區域欲顯示的圖代號
+    let canvas_mychrat = document.getElementById("mychart");
+
+    //**先清除前一個圖 再繪新圖
+    if (window.barchart) {
+      barchart.destroy();
+    }
+
+    //**繪圖(產生一個圖物件變數名稱為barchart)
+    // 必須全域變數--注意:前面不要有let, var, const等修飾詞
+    barchart = new Chart(canvas_mychrat, {
+      type: "bar",
+      data: data,
+      options: options,
+    });
+  } //show chart function
+</script>
+
+<style>
+  /* 自定義樣式 */
+  .content-card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  }
+  
+  .chart-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+  
+  /* 列表項樣式 */
+  .list-group-item {
+    border-left: 3px solid rgba(52, 152, 219, 0.5);
+    margin-bottom: 5px;
+    transition: all 0.2s ease;
+  }
+  
+  .list-group-item:hover {
+    transform: translateX(5px);
+    background-color: rgba(52, 152, 219, 0.05);
+  }
+  
+  /* 滾動容器樣式 */
+  .scrollable-container {
+    /* 初始高度，會在JS中動態修改 */
+    max-height: 400px;
+    overflow-y: visible;
+    transition: height 0.3s ease;
+  }
+  
+  /* 滾動條樣式 */
+  .scrollable-container::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .scrollable-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+  
+  .scrollable-container::-webkit-scrollbar-thumb {
+    background: #b8c2cc;
+    border-radius: 10px;
+  }
+  
+  .scrollable-container::-webkit-scrollbar-thumb:hover {
+    background: #95a5a6;
+  }
+  
+  /* 前三名特殊樣式 */
+  .rank-first {
+    border-left-color: #f1c40f !important;
+    background-color: rgba(241, 196, 15, 0.05);
+    font-weight: bold;
+  }
+  
+  .rank-second {
+    border-left-color: #95a5a6 !important;
+    background-color: rgba(149, 165, 166, 0.05);
+    font-weight: bold;
+  }
+  
+  .rank-third {
+    border-left-color: #e67e22 !important;
+    background-color: rgba(230, 126, 34, 0.05);
+    font-weight: bold;
+  }
+  
+  /* 滾動提示樣式 */
+  .scroll-tip {
+    padding: 5px;
+    border-radius: 5px;
+    background-color: rgba(52, 152, 219, 0.05);
+  }
+</style>
+{% endblock %}

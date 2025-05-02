@@ -28,4 +28,7 @@ urlpatterns = [
     # admin 後台資料庫管理
     path('admin/', admin.site.urls),
 
+    # full text search and associated keyword display using db
+    path('topperson_db/', include('app_top_person_db.urls')),
+
 ]

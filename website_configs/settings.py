@@ -34,7 +34,8 @@ INSTALLED_APPS = [
     'app_us_tariff',
     'app_user_keyword_sentiment',
     'app_person_mayor',
-    'app_user_keyword_db'
+    'app_user_keyword_db',
+    'app_top_person_db',
 ]
 
 MIDDLEWARE = [
