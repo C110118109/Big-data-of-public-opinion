@@ -5,6 +5,8 @@ from django.urls import include
 urlpatterns = [
     # top keywords
     path('topword/', include('app_top_keyword.urls')),
+    path('', include('app_top_keyword.urls')),
+    
     # app top persons
     path('topperson/', include('app_top_person.urls')),
     # user keyword analysis

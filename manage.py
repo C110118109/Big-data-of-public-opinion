@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # superuser:admin
 # password:admin12345
+# http://127.0.0.1:8000/admin/auth/user/
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
