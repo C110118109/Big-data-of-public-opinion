@@ -32,5 +32,7 @@ urlpatterns = [
 
     # full text search and associated keyword display using db
     path('topperson_db/', include('app_top_person_db.urls')),
-
+    
+    # user keyword sentiment 
+    path('userkeyword_report/', include('app_user_keyword_llm_report.urls')),
 ]
