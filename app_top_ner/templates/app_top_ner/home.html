@@ -1,0 +1,530 @@
+{% extends 'base.html' %}
+
+{% block title %}熱門命名實體{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-12">
+    <div class="content-card mb-4">
+      <h1 class="mb-3">熱門人物產品等命名實體分析</h1>
+      <p class="lead">哪個人物產品等被報導最多次?</p>
+    </div>
+  </div>
+  
+  <!-- 篩選條件區塊 -->
+  <div class="col-lg-6 mb-4">
+    <div class="content-card">
+      <div class="card-header bg-white text-black">
+        <h3 class="h5 text-uppercase mb-0">
+          <i class="fas fa-filter me-2"></i>篩選條件
+        </h3>
+        <small class="d-block mt-1">(資料週期:資料截止時間的前4周)</small>
+      </div>
+      <p></p>
+      <div class="card-body">
+        <!-- 實體標記名稱 -->
+        <div class="mb-3 row">
+          <label class="col-sm-3 col-form-label text-md-end">
+            <i class="fas fa-tag me-2"></i>實體標記名稱
+          </label>
+          <div class="col-md-9 mb-3">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="8" name="nerradio" id="ner8" checked />
+              <label class="form-check-label" for="ner8">人名</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="9" name="nerradio" id="ner9" />
+              <label class="form-check-label" for="ner9">產品</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="4" name="nerradio" id="ner4" />
+              <label class="form-check-label" for="ner4">法律條文</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="0" name="nerradio" id="ner0" />
+              <label class="form-check-label" for="ner0">事件</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="7" name="nerradio" id="ner7" />
+              <label class="form-check-label" for="ner7">組織</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="10" name="nerradio" id="ner10" />
+              <label class="form-check-label" for="ner10">作品</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="5" name="nerradio" id="ner5" />
+              <label class="form-check-label" for="ner5">地理區</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="3" name="nerradio" id="ner3" />
+              <label class="form-check-label" for="ner3">語言</label>
+            </div>
+            <div class="form-text text-muted ms-3">請選擇詞類型</div>
+          </div>
+        </div>
+        
+        <!-- 新聞類別 -->
+        <div class="mb-3 row">
+          <label class="col-sm-3 col-form-label text-md-end">
+            <i class="fas fa-newspaper me-2"></i>新聞類別
+          </label>
+          <div class="col-md-9 mb-3">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="0" name="cateradio" id="cate0" checked />
+              <label class="form-check-label" for="cate0">政治</label>
+            </div>
+            <!-- <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="1" name="cateradio" id="cate1" />
+              <label class="form-check-label" for="cate1">科技</label>
+            </div> -->
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="2" name="cateradio" id="cate2" />
+              <label class="form-check-label" for="cate2">運動</label>
+            </div>
+            <!-- <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="3" name="cateradio" id="cate3" />
+              <label class="form-check-label" for="cate3">證卷</label>
+            </div> -->
+            <!-- <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="4" name="cateradio" id="cate4" />
+              <label class="form-check-label" for="cate4">產經</label>
+            </div> -->
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="5" name="cateradio" id="cate5" />
+              <label class="form-check-label" for="cate5">娛樂</label>
+            </div>
+            <!-- <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="6" name="cateradio" id="cate6" />
+              <label class="form-check-label" for="cate6">生活</label>
+            </div> -->
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="7" name="cateradio" id="cate7" />
+              <label class="form-check-label" for="cate7">國際</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="8" name="cateradio" id="cate8" />
+              <label class="form-check-label" for="cate8">地方</label>
+            </div>
+            <!-- <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="9" name="cateradio" id="cate9" />
+              <label class="form-check-label" for="cate9">文化</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="10" name="cateradio" id="cate10" />
+              <label class="form-check-label" for="cate10">兩岸</label>
+            </div> -->
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" value="11" name="cateradio" id="cate11" />
+              <label class="form-check-label" for="cate11">全部</label>
+            </div>
+            <div class="form-text text-muted ms-3">請選擇新聞類別</div>
+          </div>
+        </div>
+        
+        <!-- 熱門詞數量 -->
+        <div class="mb-3 row">
+          <label class="col-md-3 col-form-label text-md-end">
+            <i class="fas fa-hashtag me-2"></i>多少個熱門詞?
+          </label>
+          <div class="col-md-9">
+            <input id="topk_keys" name="topk" value="30" class="form-control" />
+            <div class="form-text text-muted ms-3">內定值為30</div>
+          </div>
+        </div>
+        
+        <!-- 提交按鈕 -->
+        <div class="mb-3 row">
+          <div class="col-md-9 ms-auto">
+            <button type="button" id="btn_ok" class="btn btn-primary">
+              <i class="fas fa-search me-2"></i>查詢
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 熱門關鍵字雲圖 -->
+  <div class="col-lg-6 mb-4">
+    <div class="content-card h-100">
+      <div class="card-header bg-white text-black">
+        <h3 class="h5 text-uppercase mb-0">
+          <i class="fas fa-cloud me-2"></i>熱門關鍵字雲圖
+        </h3>
+      </div>
+      <div class="card-body">
+        <div id="cloud" style="height: 400px; width: 100%; position: relative;"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 熱門關鍵字繪圖 -->
+  <div class="col-lg-6 mb-4">
+    <div class="content-card h-100">
+      <div class="card-header bg-white text-black">
+        <h3 class="h5 text-uppercase mb-0">
+          <i class="fas fa-chart-bar me-2"></i>熱門關鍵字繪圖
+        </h3>
+      </div>
+      <div class="card-body">
+        <div class="chart-container" style="position: relative; height: 400px;">
+          <canvas id="mychart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 熱門關鍵字列表 -->
+  <div class="col-lg-6 mb-4">
+    <div class="content-card h-100">
+      <div class="card-header bg-white text-black">
+        <h3 class="h5 text-uppercase mb-0">
+          <i class="fas fa-list me-2"></i>熱門關鍵字
+        </h3>
+      </div>
+      <p></p>
+      <div class="card-body">
+        <div class="scrollable-container" style="max-height: 400px; overflow-y: auto;">
+          <ul id="topkeys" class="list-group"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+  <style>
+    /* 自定義滾動條樣式 */
+    .scrollable-container::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .scrollable-container::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    
+    .scrollable-container::-webkit-scrollbar-thumb {
+      background: #b8c2cc;
+      border-radius: 10px;
+    }
+    
+    .scrollable-container::-webkit-scrollbar-thumb:hover {
+      background: #95a5a6;
+    }
+    
+    /* 列表項目動畫效果 */
+    .list-group-item {
+      transition: all 0.2s ease;
+    }
+    
+    .list-group-item:hover {
+      transform: translateX(5px);
+      background-color: rgba(52, 152, 219, 0.05);
+    }
+  </style>
+{% endblock %}
+
+{% block extra_js %}
+  <!-- chartjs js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+  
+  <!-- 文字雲相關庫 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
+  <script src="https://cdn.rawgit.com/jasondavies/d3-cloud/v1.2.1/build/d3.layout.cloud.js"></script>
+
+  <!-- 頁面邏輯 -->
+  <script>
+    // Show the page with default setting when page is initialized.
+    call_ajax()
+    
+    //** submit event
+    $('#btn_ok').on('click', function () {
+      call_ajax()
+    }) //event function
+    
+    $("input[name='cateradio']").on('change', function () {
+      call_ajax()
+    }) //event function
+    
+    $("input[name='nerradio']").on('change', function () {
+      call_ajax()
+    }) //event function
+    
+    function call_ajax() {
+      // get user's input
+      const ner_value = $("input[name='nerradio']:checked").val()
+      console.log(ner_value)
+    
+      const cate = $("input[name='cateradio']:checked").val()
+    
+      var topk = $('#topk_keys').val()
+      console.log(topk)
+    
+      // send and get data
+      $.ajax({
+        type: 'POST',
+    
+        url: '/topner/api_get_ner_topword/',
+        data: {
+          news_category: cate,
+          topk: topk,
+          ner_value: ner_value
+        },
+        success: function (received) {
+          // clear previous top words
+          $('#topkeys').empty()
+          // clear previous cloud chart
+          $('#cloud').empty()
+    
+          console.log(received.data)
+          if (received.data.length == 0) {
+            $('#cloud').append('<h4>No Data!</h4>')
+            $('#topkeys').append('<h4>No Data!</h4>')
+            return
+          }
+    
+          const data_barchart = received.data.data_barchart
+          showChart(data_barchart)
+    
+          const wf_pairs = received.data.wf_pairs
+          showTopKeys(wf_pairs)
+    
+          topWordToDraw = received.data.data_cloud
+          drawCloud(topWordToDraw, '#cloud')
+        } //ajax function
+      }) //ajax
+    } //call_ajax
+    
+    //* 顯示關鍵詞資料函數
+    function showTopKeys(items) {
+      //先清除前一次的資料
+      $('#topkeys').empty()
+      
+      // 判斷是否需要添加滾動提示
+      // if (items.length > 10) {
+      //   $('#topkeys').append(`
+      //     <div class="text-center mb-2 text-muted">
+      //       <small><i class="fas fa-mouse-pointer me-1"></i> 向下滾動查看更多</small>
+      //     </div>
+      //   `);
+      // }
+    
+      //將內容加上li標籤附加起來，顯示在顯示區"topkeys"
+      for (let i = 0; i < items.length; i++) {
+        // 為前三名添加特殊圖標
+        let rankIcon = "";
+        
+        if (i === 0) {
+          rankIcon = '<i class="fas fa-trophy text-warning me-2"></i>';
+        } else if (i === 1) {
+          rankIcon = '<i class="fas fa-medal text-secondary me-2"></i>';
+        } else if (i === 2) {
+          rankIcon = '<i class="fas fa-award text-danger me-2"></i>';
+        }
+        
+        let item_li = `<li class="list-group-item d-flex justify-content-between align-items-center">
+                       <span>${rankIcon}${items[i]}</span>
+                       <span class="badge bg-primary rounded-pill">${i+1}</span>
+                     </li>`;
+        $('#topkeys').append(item_li)
+      }
+    } //function
+    
+    //**繪圖函數showChart()
+    function showChart(chart_data) {
+      // 畫圖需要的數據資料
+      let values = chart_data.values
+      let labels = chart_data.labels
+      let category = chart_data.category
+    
+      // 定義一個顏色陣列
+      const colorPalette = [
+        'rgba(52, 152, 219, 0.6)',
+        'rgba(46, 204, 113, 0.6)',
+        'rgba(155, 89, 182, 0.6)',
+        'rgba(231, 76, 60, 0.6)',
+        'rgba(241, 196, 15, 0.6)',
+        'rgba(26, 188, 156, 0.6)',
+        'rgba(230, 126, 34, 0.6)',
+        'rgba(149, 165, 166, 0.6)',
+        'rgba(243, 156, 18, 0.6)',
+        'rgba(52, 73, 94, 0.6)'
+      ];
+      
+      //第1個變數: 餵給chart的資料
+      let data = {
+        labels: labels,
+        datasets: [
+          {
+            label: category,
+            data: values,
+            backgroundColor: colorPalette.slice(0, values.length),
+            borderColor: colorPalette.slice(0, values.length),
+            borderWidth: 1
+          }
+        ]
+      }
+    
+      //第2個變數: chart的選項  指定y坐標軸從零開始顯示
+      let options = {
+        responsive: true,
+        maintainAspectRatio: false, // 這允許圖表適應容器高度
+        scales: {
+          yAxes: [
+            {
+              ticks: {
+                beginAtZero: true,
+                // 確保Y軸只顯示整數值
+                callback: function(value) {if (value % 1 === 0) {return value;}}
+              },
+              gridLines: {
+                color: 'rgba(0, 0, 0, 0.05)'
+              }
+            }
+          ],
+          xAxes: [
+            {
+              gridLines: {
+                color: 'rgba(0, 0, 0, 0.05)'
+              }
+            }
+          ]
+        },
+        legend: {
+          display: true,
+          position: 'top'
+        },
+        tooltips: {
+          mode: 'index',
+          intersect: false
+        }
+      }
+    
+      //取得在前面html區域欲顯示的圖代號
+      let canvas_mychrat = document.getElementById('mychart')
+    
+      //**先清除前一個圖 再繪新圖
+      if (window.barchart) {
+        barchart.destroy()
+      }
+    
+      //**繪圖(產生一個圖物件變數名稱為barchart)
+      barchart = new Chart(canvas_mychrat, {
+        type: 'bar',
+        data: data,
+        options: options
+      })
+    } //show chart function
+    
+    //** cloud chart
+    function drawCloud(topWordToDraw, element_id) {
+      // You should set a proper box size to show cloud chart
+      const width = 400
+      const height = 400
+    
+      // Normalize sizes to prevent extreme values
+      if (topWordToDraw.length > 0) {
+        const maxSize = Math.max(...topWordToDraw.map(d => d.size));
+        const minSize = Math.min(...topWordToDraw.map(d => d.size));
+        
+        // Adjust the size scale to prevent words from being too large
+        const maxFontSize = 60; // Maximum font size
+        const minFontSize = 14; // Minimum font size
+        
+        // Normalize sizes
+        topWordToDraw = topWordToDraw.map(d => {
+          // Create a more balanced size distribution
+          let normalizedSize = minFontSize;
+          if (maxSize !== minSize) {
+            normalizedSize = minFontSize + ((d.size - minSize) / (maxSize - minSize)) * (maxFontSize - minFontSize);
+          }
+          return {
+            text: d.text,
+            size: normalizedSize
+          };
+        });
+      }
+      
+      // Create word cloud layout
+      d3.layout
+        .cloud()
+        .size([width, height])
+        .words(topWordToDraw) //data for cloud chart
+        .padding(5) // Add padding between words
+        .rotate(function () {
+          return 0 // don't rotate
+        })
+        .font("'Noto Sans TC', sans-serif")
+        .fontSize(function (d) {
+          return d.size
+        })
+        .on('end', draw) //call function draw()
+        .start()
+    
+      // Finally implement `draw`, which performs the D3 drawing
+      function draw(words) {
+        const colorScheme = [
+          "#3498db", "#2ecc71", "#9b59b6", "#e74c3c", "#f1c40f",
+          "#1abc9c", "#e67e22", "#95a5a6", "#f39c12", "#34495e"
+        ];
+    
+        // append the svg object to the body of the page
+        d3.select(element_id)
+          .append('svg') // element_id such as "#cloud"
+          .attr('width', width)
+          .attr('height', height)
+          .attr("viewBox", `0 0 ${width} ${height}`)
+          .attr("preserveAspectRatio", "xMidYMid meet")
+          .append('g')
+          .attr('transform', 'translate(' + ~~(width / 2) + ',' + ~~(height / 2) + ')')
+          .selectAll('text')
+          .data(words)
+          .enter()
+          .append('text')
+          .style('font-size', function (d) {
+            return d.size + 'px'
+          })
+          .style('font-family', "'Noto Sans TC', sans-serif")
+          .style('font-weight', function(d) {
+            return d.size > 30 ? "bold" : "normal";
+          })
+          .style('-webkit-touch-callout', 'none')
+          .style('-webkit-user-select', 'none')
+          .style('-khtml-user-select', 'none')
+          .style('-moz-user-select', 'none')
+          .style('-ms-user-select', 'none')
+          .style('user-select', 'none')
+          .style('cursor', 'pointer')
+          .style('fill', function (d, i) {
+            return colorScheme[i % colorScheme.length];
+          })
+          .attr('text-anchor', 'middle')
+          .attr('transform', function (d) {
+            return 'translate(' + [d.x, d.y] + ')rotate(' + d.rotate + ')'
+          })
+          .text(function (d) {
+            return d.text
+          })
+          .on("mouseover", function() {
+            d3.select(this)
+              .transition()
+              .duration(200)
+              .style("font-size", function(d) {
+                return (d.size + 2) + "px";
+              });
+          })
+          .on("mouseout", function() {
+            d3.select(this)
+              .transition()
+              .duration(200)
+              .style("font-size", function(d) {
+                return d.size + "px";
+              });
+          });
+      } //draw
+    } //drawCloud()
+  </script>
+{% endblock %}

@@ -12,6 +12,9 @@ urlpatterns = [
     # user keyword analysis
     path('userkeyword/', include('app_user_keyword.urls')),
     
+    # top ner
+    path('topner/', include('app_top_ner.urls')),
+    
     path('trump/', include('app_voice_trump.urls')),
 
     # full text search and associated keyword display

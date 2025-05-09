@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     #'corsheaders',  # 跨域資源共享
     'app_top_keyword',
     'app_top_person',
+    'app_top_ner',
     'app_user_keyword',
     'app_voice_trump',
     'app_user_keyword_association',
