@@ -1,0 +1,717 @@
+{% extends 'base.html' %}
+{% block title %}AI股票熱潮分析{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <!-- 標題區域 -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="content-card">
+        <div class="d-flex align-items-center justify-content-between flex-wrap">
+          <div class="mb-3 mb-md-0">
+            <h1 class="mb-2">
+              <i class="fas fa-rocket text-primary me-2"></i>AI股票熱潮分析
+            </h1>
+            <p class="lead mb-0 text-muted">追蹤AI概念股的媒體聲量變化，掌握投資市場動態與輿論趨勢</p>
+          </div>
+          <div class="text-md-end">
+            <div class="mb-2">
+              <small class="text-muted">
+                <i class="fas fa-database me-1"></i>數據來源: {{ data_source }}
+              </small>
+            </div>
+            <div>
+              <small class="text-muted">
+                <i class="fas fa-clock me-1"></i>最後更新: {{ last_update }}
+              </small>
+            </div>
+          </div>
+        </div>
+        
+        {% if is_demo %}
+          <div class="alert alert-info mt-3 mb-0">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>演示模式</strong> - 請執行爬蟲程式收集真實數據後重新載入
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- 關鍵數據總覽 -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="content-card">
+        <h3 class="h5 text-uppercase mb-3">
+          <i class="fas fa-chart-line me-2 text-primary"></i>AI概念股聲量總覽
+        </h3>
+        <div id="ai_stock_overview"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 主要分析圖表區 -->
+  <div class="row mb-4">
+    <!-- AI概念股排行榜 -->
+    <div class="col-lg-8 mb-4">
+      <div class="content-card h-100">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h3 class="h5 text-uppercase mb-0">
+            <i class="fas fa-trophy me-2 text-warning"></i>AI概念股聲量排行
+          </h3>
+          <small class="text-muted">依媒體提及次數排序</small>
+        </div>
+        <div style="height: 350px; position: relative;">
+          <canvas id="stock_ranking_chart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- 新聞分類統計 -->
+    <div class="col-lg-4 mb-4">
+      <div class="content-card h-100">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h3 class="h5 text-uppercase mb-0">
+            <i class="fas fa-newspaper me-2 text-info"></i>新聞分類統計
+          </h3>
+        </div>
+        <div style="height: 350px; position: relative;">
+          <canvas id="category_chart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 第二排分析圖表 -->
+  <div class="row mb-4">
+    <!-- AI關鍵字熱度分析 -->
+    <div class="col-lg-6 mb-4">
+      <div class="content-card h-100">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h3 class="h5 text-uppercase mb-0">
+            <i class="fas fa-fire me-2 text-danger"></i>AI關鍵字熱度分析
+          </h3>
+          <small class="text-muted">詞彙討論熱度</small>
+        </div>
+        <div id="ai_keywords_cloud" style="height: 320px; width: 100%; border: 1px solid #e9ecef; border-radius: 8px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);"></div>
+      </div>
+    </div>
+
+    <!-- 情緒趨勢分析 -->
+    <div class="col-lg-6 mb-4">
+      <div class="content-card h-100">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h3 class="h5 text-uppercase mb-0">
+            <i class="fas fa-heart me-2 text-success"></i>AI股票情緒趨勢
+          </h3>
+          <small class="text-muted">正負面情緒變化</small>
+        </div>
+        <div style="height: 320px; position: relative;">
+          <canvas id="sentiment_trend_chart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 功能說明與洞察區域 -->
+  <div class="row">
+    <!-- 數據收集說明 -->
+    <div class="col-lg-6 mb-4">
+      <div class="content-card h-100">
+        <h3 class="h5 text-uppercase mb-3">
+          <i class="fas fa-cogs me-2 text-secondary"></i>數據收集說明
+        </h3>
+        
+        <div class="card bg-light border-0 mb-3">
+          <div class="card-body">
+            <h6 class="card-title">
+              <i class="fas fa-play-circle text-primary me-2"></i>如何更新數據：
+            </h6>
+            <div class="step-list">
+              <div class="step-item mb-2">
+                <span class="step-number">1</span>
+                <span>執行爬蟲程式: <code class="bg-white px-2 py-1 rounded">python ttv_ai_news_crawler.py</code></span>
+              </div>
+              <div class="step-item mb-2">
+                <span class="step-number">2</span>
+                <span>等待爬取完成（約10-20分鐘）</span>
+              </div>
+              <div class="step-item mb-2">
+                <span class="step-number">3</span>
+                <span>將生成的CSV檔案放到 <code class="bg-white px-2 py-1 rounded">app_ai_stock_hype/dataset/</code> 目錄</span>
+              </div>
+              <div class="step-item">
+                <span class="step-number">4</span>
+                <span>重新載入此頁面查看最新分析</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card bg-light border-0 mb-3">
+          <div class="card-body">
+            <h6 class="card-title">
+              <i class="fas fa-target text-info me-2"></i>爬蟲收集範圍：
+            </h6>
+            <ul class="list-unstyled mb-0">
+              <li class="mb-1"><i class="fas fa-check text-success me-2"></i>台視新聞財經、政治、國際分類</li>
+              <li class="mb-1"><i class="fas fa-check text-success me-2"></i>包含AI相關關鍵字的新聞</li>
+              <li><i class="fas fa-check text-success me-2"></i>自動識別台積電、聯發科等AI概念股</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="alert alert-success mb-0">
+          <i class="fas fa-lightbulb me-2"></i>
+          <strong>建議</strong>：每週執行1-2次爬蟲以保持數據更新
+        </div>
+      </div>
+    </div>
+
+    <!-- AI投資洞察 -->
+    <div class="col-lg-6 mb-4">
+      <div class="content-card h-100">
+        <h3 class="h5 text-uppercase mb-3">
+          <i class="fas fa-lightbulb me-2 text-warning"></i>AI投資洞察與市場觀察
+        </h3>
+        
+        <div class="row g-3 mb-4">
+          <div class="col-12">
+            <div class="insight-card bg-primary text-white">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-trending-up fa-2x me-3"></i>
+                <div>
+                  <h6 class="mb-1">聲量分析</h6>
+                  <p class="mb-0 small">透過新聞提及頻率分析各AI概念股的市場關注度，聲量高通常代表市場關注度增加</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="insight-card bg-warning text-dark">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-chart-line fa-2x me-3"></i>
+                <div>
+                  <h6 class="mb-1">趨勢觀察</h6>
+                  <p class="mb-0 small">關注AI技術突破、政策利多、國際合作等事件對相關個股聲量的影響</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="insight-card bg-success text-white">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-balance-scale fa-2x me-3"></i>
+                <div>
+                  <h6 class="mb-1">情緒指標</h6>
+                  <p class="mb-0 small">正負面新聞比例可作為市場情緒參考，但投資決策仍需結合基本面分析</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card bg-light border-0">
+          <div class="card-body">
+            <h6 class="card-title mb-3">
+              <i class="fas fa-star text-warning me-2"></i>主要AI概念股追蹤：
+            </h6>
+            <div class="d-flex flex-wrap gap-2">
+              <span class="badge bg-primary fs-6 py-2 px-3">台積電 (2330)</span>
+              <span class="badge bg-success fs-6 py-2 px-3">聯發科 (2454)</span>
+              <span class="badge bg-info fs-6 py-2 px-3">廣達 (2382)</span>
+              <span class="badge bg-warning text-dark fs-6 py-2 px-3">鴻海 (2317)</span>
+              <span class="badge bg-secondary fs-6 py-2 px-3">緯創 (3231)</span>
+              <span class="badge bg-dark fs-6 py-2 px-3">聯電 (2303)</span>
+              <span class="badge bg-danger fs-6 py-2 px-3">日月光 (2311)</span>
+              <span class="badge bg-primary fs-6 py-2 px-3">和碩 (4938)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* 自定義樣式 */
+.content-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.content-card:hover {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+
+.step-list .step-item {
+  display: flex;
+  align-items: flex-start;
+}
+
+.step-number {
+  background: #007bff;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  margin-right: 12px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.insight-card {
+  padding: 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.insight-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+.stats-card {
+  background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+  border-radius: 12px;
+  color: #2c3e50;
+  border: 1px solid #e1f5fe;
+}
+
+.stats-card h2 {
+  font-weight: 700;
+}
+
+.badge {
+  transition: all 0.3s ease;
+}
+
+.badge:hover {
+  transform: scale(1.05);
+}
+
+/* Chart 容器固定高度 */
+.chart-container {
+  height: 320px !important;
+  max-height: 320px !important;
+  overflow: hidden;
+  position: relative;
+}
+
+.chart-container canvas {
+  max-height: 100% !important;
+}
+@media (max-width: 768px) {
+  .content-card {
+    padding: 1rem;
+  }
+  
+  .insight-card {
+    padding: 0.75rem;
+  }
+  
+  .insight-card i {
+    font-size: 1.5rem !important;
+    margin-right: 0.75rem !important;
+  }
+  
+  .badge {
+    font-size: 0.75rem !important;
+    padding: 0.375rem 0.75rem !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .step-item {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+  
+  .step-number {
+    margin-bottom: 0.5rem;
+  }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+<!-- D3.js for word cloud -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
+<script src="https://cdn.rawgit.com/jasondavies/d3-cloud/v1.2.1/build/d3.layout.cloud.js"></script>
+
+<script>
+  // 取得後端數據
+  const stockRankings = {{ stock_rankings|safe }};
+  const sentimentTrends = {{ sentiment_trends|safe }};
+  const keywordFrequency = {{ keyword_frequency|safe }};
+  const volumeByCompany = {{ volume_by_company|safe }};
+  const aiKeywordsCloud = {{ ai_keywords_cloud|safe }};
+  const totalArticles = {{ total_articles|safe }};
+  const totalMentions = {{ total_mentions|safe }};
+  const categoryStats = {{ category_stats|safe }};
+
+  // 初始化顯示
+  displayAIStockOverview();
+  drawStockRankingChart();
+  drawSentimentTrendChart();
+  drawAIKeywordsCloud();
+  drawCategoryChart();
+
+  // 顯示AI股票總覽 - 優化版
+  function displayAIStockOverview() {
+    const logoUrl = "https://cdn-icons-png.flaticon.com/512/2103/2103633.png";
+    
+    let html_snippet = `
+      <div class="stats-card p-4">
+        <div class="row align-items-center">
+          <div class="col-md-3 text-center mb-3 mb-md-0">
+            <img class="img-fluid rounded-circle shadow-lg" src="${logoUrl}" 
+                 alt="AI概念股" style="max-height: 100px; filter: drop-shadow(0 4px 8px rgba(255,255,255,0.3));">
+          </div>
+          <div class="col-md-9">
+            <div class="row g-4">
+              <div class="col-sm-6">
+                <div class="d-flex align-items-center">
+                  <div class="bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+                    <i class="fas fa-newspaper fa-2x text-primary"></i>
+                  </div>
+                  <div>
+                    <h3 class="mb-0 fw-bold">${totalArticles}</h3>
+                    <p class="mb-0 text-muted">AI相關新聞</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="d-flex align-items-center">
+                  <div class="bg-success bg-opacity-10 rounded-circle p-3 me-3">
+                    <i class="fas fa-hashtag fa-2x text-success"></i>
+                  </div>
+                  <div>
+                    <h3 class="mb-0 fw-bold">${totalMentions}</h3>
+                    <p class="mb-0 text-muted">概念股提及次數</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+    document.getElementById("ai_stock_overview").innerHTML = html_snippet;
+  }
+
+  // 繪製股票排行圖 - 優化版
+  function drawStockRankingChart() {
+    if (!stockRankings || stockRankings.length === 0) {
+      document.getElementById('stock_ranking_chart').parentElement.innerHTML = 
+        '<div class="text-center text-muted py-5"><i class="fas fa-chart-bar fa-3x mb-3 opacity-50"></i><p>暫無股票聲量數據</p></div>';
+      return;
+    }
+    
+    const ctx = document.getElementById('stock_ranking_chart').getContext('2d');
+    
+    const companies = stockRankings.map(item => item[0]);
+    const volumes = stockRankings.map(item => item[1]);
+
+    const gradientColors = [
+      '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', 
+      '#FECA57', '#FF9FF3', '#54A0FF', '#5F27CD'
+    ];
+
+    new Chart(ctx, {
+      type: 'horizontalBar',
+      data: {
+        labels: companies,
+        datasets: [{
+          label: 'AI相關提及次數',
+          data: volumes,
+          backgroundColor: gradientColors.slice(0, companies.length),
+          borderColor: gradientColors.slice(0, companies.length),
+          borderWidth: 2,
+          borderRadius: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          xAxes: [{
+            ticks: { 
+              beginAtZero: true,
+              fontFamily: "'Noto Sans TC', sans-serif"
+            },
+            gridLines: {
+              color: 'rgba(0,0,0,0.05)'
+            }
+          }],
+          yAxes: [{
+            ticks: {
+              fontFamily: "'Noto Sans TC', sans-serif",
+              fontSize: 12
+            },
+            gridLines: {
+              display: false
+            }
+          }]
+        },
+        legend: { display: false },
+        tooltips: {
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          titleFontFamily: "'Noto Sans TC', sans-serif",
+          bodyFontFamily: "'Noto Sans TC', sans-serif",
+          cornerRadius: 8
+        }
+      }
+    });
+  }
+
+  // 繪製情緒趨勢圖 - 優化版
+  function drawSentimentTrendChart() {
+    if (!sentimentTrends || sentimentTrends.length === 0) {
+      document.getElementById('sentiment_trend_chart').parentElement.innerHTML = 
+        '<div class="text-center text-muted py-5"><i class="fas fa-heart fa-3x mb-3 opacity-50"></i><p>暫無情緒趨勢數據</p></div>';
+      return;
+    }
+    
+    const ctx = document.getElementById('sentiment_trend_chart').getContext('2d');
+    
+    const dates = sentimentTrends.map(item => item.date);
+    const positiveData = sentimentTrends.map(item => item.positive);
+    const negativeData = sentimentTrends.map(item => item.negative);
+    const neutralData = sentimentTrends.map(item => item.neutral);
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: dates,
+        datasets: [
+          {
+            label: '正面情緒',
+            data: positiveData,
+            borderColor: '#28a745',
+            backgroundColor: 'rgba(40, 167, 69, 0.1)',
+            fill: true,
+            tension: 0.4,
+            borderWidth: 3,
+            pointBackgroundColor: '#28a745',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 6
+          },
+          {
+            label: '負面情緒', 
+            data: negativeData,
+            borderColor: '#dc3545',
+            backgroundColor: 'rgba(220, 53, 69, 0.1)',
+            fill: true,
+            tension: 0.4,
+            borderWidth: 3,
+            pointBackgroundColor: '#dc3545',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 6
+          },
+          {
+            label: '中性情緒',
+            data: neutralData,
+            borderColor: '#6c757d',
+            backgroundColor: 'rgba(108, 117, 125, 0.1)',
+            fill: true,
+            tension: 0.4,
+            borderWidth: 3,
+            pointBackgroundColor: '#6c757d',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 6
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+          duration: 0 // 禁用動畫防止尺寸問題
+        },
+        hover: {
+          animationDuration: 0 // 禁用懸停動畫
+        },
+        responsiveAnimationDuration: 0, // 禁用響應式動畫
+        scales: {
+          yAxes: [{
+            ticks: { 
+              beginAtZero: true,
+              fontFamily: "'Noto Sans TC', sans-serif",
+              maxTicksLimit: 8 // 限制 Y 軸刻度數量
+            },
+            gridLines: {
+              color: 'rgba(0,0,0,0.05)'
+            }
+          }],
+          xAxes: [{
+            ticks: {
+              fontFamily: "'Noto Sans TC', sans-serif",
+              maxTicksLimit: 10 // 限制 X 軸刻度數量
+            },
+            gridLines: {
+              color: 'rgba(0,0,0,0.05)'
+            }
+          }]
+        },
+        legend: {
+          display: true,
+          position: 'top',
+          labels: {
+            fontFamily: "'Noto Sans TC', sans-serif",
+            usePointStyle: true,
+            padding: 20
+          }
+        },
+        tooltips: {
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          titleFontFamily: "'Noto Sans TC', sans-serif",
+          bodyFontFamily: "'Noto Sans TC', sans-serif",
+          cornerRadius: 8,
+          mode: 'index',
+          intersect: false
+        }
+      }
+    });
+  }
+
+  // 繪製分類統計圖 - 優化版
+  function drawCategoryChart() {
+    if (!categoryStats || categoryStats.length === 0) {
+      document.getElementById('category_chart').parentElement.innerHTML = 
+        '<div class="text-center text-muted py-5"><i class="fas fa-chart-pie fa-3x mb-3 opacity-50"></i><p>暫無分類統計數據</p></div>';
+      return;
+    }
+    
+    const ctx = document.getElementById('category_chart').getContext('2d');
+    
+    const categories = categoryStats.map(item => item.category);
+    const counts = categoryStats.map(item => item.count);
+    
+    const modernColors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57'];
+
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: categories,
+        datasets: [{
+          data: counts,
+          backgroundColor: modernColors.slice(0, categories.length),
+          borderWidth: 3,
+          borderColor: '#fff',
+          hoverBorderWidth: 5
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutoutPercentage: 60,
+        legend: {
+          position: 'bottom',
+          labels: {
+            fontFamily: "'Noto Sans TC', sans-serif",
+            padding: 20,
+            usePointStyle: true
+          }
+        },
+        tooltips: {
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          titleFontFamily: "'Noto Sans TC', sans-serif",
+          bodyFontFamily: "'Noto Sans TC', sans-serif",
+          cornerRadius: 8
+        }
+      }
+    });
+  }
+
+  // 繪製AI關鍵字雲 - 優化版
+  function drawAIKeywordsCloud() {
+    const container = document.getElementById('ai_keywords_cloud');
+    const width = container.offsetWidth - 20;
+    const height = 300;
+
+    if (!aiKeywordsCloud || aiKeywordsCloud.length === 0) {
+      container.innerHTML = `
+        <div class="d-flex align-items-center justify-content-center h-100">
+          <div class="text-center text-muted">
+            <i class="fas fa-cloud fa-3x mb-3 opacity-50"></i>
+            <p class="mb-1">暫無關鍵字數據</p>
+            <small>執行爬蟲收集數據後將自動生成關鍵字雲</small>
+          </div>
+        </div>`;
+      return;
+    }
+
+    d3.layout.cloud()
+      .size([width, height])
+      .words(aiKeywordsCloud)
+      .padding(8)
+      .rotate(() => Math.random() * 60 - 30)
+      .font("'Noto Sans TC', sans-serif")
+      .fontSize(d => Math.max(d.size, 12))
+      .on("end", draw)
+      .start();
+
+    function draw(words) {
+      const colorScheme = [
+        "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FECA57",
+        "#FF9FF3", "#54A0FF", "#5F27CD", "#00D2D3", "#FF9F43"
+      ];
+
+      container.innerHTML = "";
+      
+      const svg = d3.select(container)
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+      const g = svg.append("g")
+        .attr("transform", `translate(${width/2},${height/2})`);
+
+      g.selectAll("text")
+        .data(words)
+        .enter()
+        .append("text")
+        .style("font-size", d => d.size + "px")
+        .style("font-family", "'Noto Sans TC', sans-serif")
+        .style("font-weight", "600")
+        .style("fill", (d, i) => colorScheme[i % colorScheme.length])
+        .style("cursor", "pointer")
+        .attr("text-anchor", "middle")
+        .attr("transform", d => `translate(${d.x},${d.y}) rotate(${d.rotate})`)
+        .text(d => d.text)
+        .on("mouseover", function(d) {
+          d3.select(this)
+            .style("font-size", (d.size + 5) + "px")
+            .style("opacity", 0.8);
+        })
+        .on("mouseout", function(d) {
+          d3.select(this)
+            .style("font-size", d.size + "px")
+            .style("opacity", 1);
+        });
+    }
+  }
+
+  // 頁面載入完成後自動調整
+  window.addEventListener('resize', function() {
+    // 重新繪製關鍵字雲以適應新尺寸
+    setTimeout(drawAIKeywordsCloud, 100);
+  });
+</script>
+{% endblock %}

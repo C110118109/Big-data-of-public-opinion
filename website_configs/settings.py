@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'app_user_keyword_db',
     'app_top_person_db',
     'app_user_keyword_llm_report',
+    'app_ai_stock_hype',
 ]
 
 MIDDLEWARE = [
